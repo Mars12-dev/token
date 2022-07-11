@@ -38,7 +38,7 @@ BOB_PK = default_keys.BOB_PK
 alice_pytezos = default_keys.alice_pytezos
 bob_pytezos = default_keys.bob_pytezos
 
-send_conf = dict(min_confirmations=1)
+send_conf = dict(min_confirmations=2)
 
 
 class Env:
@@ -80,9 +80,10 @@ class Env:
             **self.alice_using_params
         )
 
-        # multisig = self.deploy_multisig()
-        multisig_addr = "KT1KEmfsdhbbG89MtyG2EEbDv7LGZkUL3X5P"
-        multisig = pytezos.using(**self.alice_using_params).contract(multisig_addr)
+        multisig = self.deploy_multisig()
+        # multisig_addr = "KT1KEmfsdhbbG89MtyG2EEbDv7LGZkUL3X5P"
+        # multisig = pytezos.using(
+        #     **self.alice_using_params).contract(multisig_addr)
 
         storage = {
             "paused": False,

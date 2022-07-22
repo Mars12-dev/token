@@ -8,6 +8,12 @@ type buy_param =
   amount: nat;
 } 
 
+type fa12_contract_transfer =
+[@layout:comb]
+  { [@annot:from] address_from : address;
+    [@annot:to] address_to : address;
+    value : nat }
+
 type storage = 
 [@layout:comb] 
 { 
@@ -15,10 +21,17 @@ type storage =
   token_out_address : address; 
   treasury : address; 
   token_price : nat; 
+  admin : address;
+  paused : bool;
 } 
 
 type parameter = 
+| SetPause of bool
+| SetTokenIn of address
+| SetTokenOut of address
+| SetTreasury of address
 | Buy of buy_param
+
 type return = operation list * storage 
 
 #endif 

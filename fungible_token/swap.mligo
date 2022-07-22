@@ -1,4 +1,8 @@
-#include "marketplace_interface.mligo"
+#include "swap_interface.mligo"
+
+let error_FA12_CONTRACT_MUST_HAVE_A_TRANSFER_ENTRYPOINT = 1n
+let error_CALLER_IS_NOT_ADMIN = 2n
+let error_SWAP_IS_PAUSED = 3n
 
 
 let fa12_transfer (fa12_address : address) (from_ : address) (to_ : address) (value : nat) : operation =
@@ -10,19 +14,19 @@ let fa12_transfer (fa12_address : address) (from_ : address) (to_ : address) (va
     Tezos.transaction transfer 0mutez fa12_contract
 
 let set_pause (param : bool) (store : storage) : return =
-  if Tezos.sender <> store.admin then
+  if (Tezos.get_sender()) <> store.admin then
        (failwith(error_CALLER_IS_NOT_ADMIN) : return)
   else
     ([] : operation list), {store with paused = param}
 
 let set_token_in (param : address) (store : storage) : return =
-  if Tezos.sender <> store.admin then
+  if (Tezos.get_sender()) <> store.admin then
        (failwith(error_CALLER_IS_NOT_ADMIN) : return)
   else
     ([] : operation list), {store with token_in_address = param}
 
 let set_token_out (param : address) (store : storage) : return =
-  if Tezos.sender <> store.admin then
+  if (Tezos.get_sender()) <> store.admin then
        (failwith(error_CALLER_IS_NOT_ADMIN) : return)
   else
     ([] : operation list), {store with token_out_address = param}
@@ -34,7 +38,7 @@ let set_treasury (param : address) (store : storage) : return =
     ([] : operation list), {store with treasury = param}
 
 let set_token_price (param : nat) (store : storage) : return =
-  if Tezos.sender <> store.admin then
+  if (Tezos.get_sender()) <> store.admin then
        (failwith(error_CALLER_IS_NOT_ADMIN) : return)
   else
     ([] : operation list), {store with token_price = param}
@@ -45,8 +49,8 @@ let buy(param : buy_param) (store : storage) : return =
      (failwith(error_SWAP_IS_PAUSED) : return)
  else
   let ops = ([] : operation list) in  
-  let ops = fa12_transfer store.token_in_address Tezos.sender  store.treasury  param.amount :: ops in
-  let ops = fa12_transfer store.token_out_address Tezos.self_addres Tezos.sender param.amount/store.token_price :: ops in
+  let ops = fa12_transfer store.token_in_address (Tezos.get_sender()) (Tezos.get_self_address ()) param.amount :: ops in
+  let ops = fa12_transfer store.token_out_address (Tezos.get_self_address ()) (Tezos.get_sender()) (param.amount / store.token_price) :: ops in
 
 (ops, store)
 
@@ -54,8 +58,8 @@ let main (action, store : parameter * storage) : return =
  match action with
  | SetPause p -> set_pause p store
  | SetTokenIn p -> set_token_in p store
- | SetTokenOut p -> set_token_Out p store
+ | SetTokenOut p -> set_token_out p store
  | SetTreasury p -> set_treasury p store
- |Buy p -> buy p store
+ | Buy p -> buy p store
 
 

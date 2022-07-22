@@ -24,12 +24,13 @@ class Keys:
 
 
 default_keys = Keys()
+admin = "tz1TaKUpdcuFRKWpMVeDP2eQcme4nxc8Jx8u"
 
 
 @dataclass
 class MultisigStorage:
     authorized_contracts: str = default_keys.ALICE_PK
-    admins: str = default_keys.ALICE_PK
+    admins: str = admin
 
 
 ALICE_PK = default_keys.ALICE_PK
@@ -54,7 +55,7 @@ class Env:
         init_storage = MultisigStorage()
 
         storage = {
-            "admins": {init_storage.admins},
+            "admins": {init_storage.admins, ALICE_PK},
             "n_calls": {},
             "threshold": 1,
             "duration": 3600,
@@ -88,7 +89,7 @@ class Env:
         storage = {
             "paused": False,
             "burn_paused": False,
-            "ledger": {ALICE_PK: total_supply},
+            "ledger": {admin: total_supply},
             "allowances": {},
             "total_supply": total_supply,
             "metadata": {
@@ -113,6 +114,7 @@ class Env:
             0
         ].originated_contracts[0]
         multisig.addAuthorizedContract(atf_addr).send(**send_conf)
+        multisig.removeAdmin(ALICE_PK)
         atf = alice_pytezos.using(
             **self.alice_using_params).contract(atf_addr)
 

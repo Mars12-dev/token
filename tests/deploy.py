@@ -1,7 +1,7 @@
 from env import Env
 
 
-SHELL = "https://jakartanet.ecadinfra.com/"
+SHELL = "https://rpc.ghostnet.teztnets.xyz/"
 
 
 send_conf = dict(min_confirmations=1)

@@ -128,7 +128,7 @@ let prepare_multisig (type p) (entrypoint_name: string) (param: p) (func: unit -
           {
             name = entrypoint_name;
             params = param_hash;
-            source_contract = Tezos.self_address;
+            source_contract = (Tezos.get_self_address ());
           }
         in
         let call_param =
@@ -155,9 +155,9 @@ let transfer (param, storage : transfer * storage) : storage =
     let ledger = storage.ledger in
 
     let new_allowances =
-      if Tezos.sender = param.address_from then allowances
+      if (Tezos.get_sender()) = param.address_from then allowances
       else
-        let allowance_key = { owner = param.address_from ; spender = Tezos.sender } in
+        let allowance_key = { owner = param.address_from ; spender = (Tezos.get_sender()) } in
         let authorized_value = match Big_map.find_opt allowance_key allowances with
           | Some value -> value
           | None -> 0n in
@@ -198,7 +198,7 @@ let approve (param, storage : approve * storage) : result =
     (failwith("contract in pause") : result)
   else
     let allowances = storage.allowances in
-    let allowance_key = { owner = Tezos.sender ; spender = param.spender } in
+    let allowance_key = { owner = (Tezos.get_sender()) ; spender = param.spender } in
     let previous_value =
       match Big_map.find_opt allowance_key allowances with
       | Some value -> value
@@ -231,8 +231,8 @@ let get_total_supply (param, storage : get_total_supply * storage) : result =
   [Tezos.transaction total 0mutez param.callback], storage
 
 let set_pause (param, storage : bool * storage): result =
-  if Tezos.sender <> storage.multisig then
-    let sender_address = Tezos.self_address in
+  if (Tezos.get_sender()) <> storage.multisig then
+    let sender_address = (Tezos.get_self_address ()) in
     let func () =
       match (Tezos.get_entrypoint_opt "%setPause" sender_address : bool contract option) with
       | None -> (failwith("no setPause entrypoint") : operation list)
@@ -242,8 +242,8 @@ let set_pause (param, storage : bool * storage): result =
     (([] : operation list), { storage with paused = param })
 
 let set_burn_pause (param, storage : bool * storage): result =
-  if Tezos.sender <> storage.multisig then
-    let sender_address = Tezos.self_address in
+  if (Tezos.get_sender()) <> storage.multisig then
+    let sender_address = (Tezos.get_self_address ()) in
     let func () =
       match (Tezos.get_entrypoint_opt "%setBurnPause" sender_address : bool contract option) with
       | None -> (failwith("no setBurnPause entrypoint") : operation list)
@@ -254,8 +254,8 @@ let set_burn_pause (param, storage : bool * storage): result =
 
 
 let set_multisig (param, storage : address * storage) : result =
-  if Tezos.sender <> storage.multisig then
-    let sender_address = Tezos.self_address in
+  if (Tezos.get_sender()) <> storage.multisig then
+    let sender_address = (Tezos.get_self_address ()) in
     let func () =
       match (Tezos.get_entrypoint_opt "%setMultisig" sender_address : address contract option) with
       | None -> (failwith("no setMultisig entrypoint") : operation list)
@@ -265,8 +265,8 @@ let set_multisig (param, storage : address * storage) : result =
     ([] : operation list), { storage with multisig = param }
 
 let set_token_metadata (param, storage : set_token_metadata * storage): result =
-  if Tezos.sender <> storage.multisig then
-    let sender_address = Tezos.self_address in
+  if (Tezos.get_sender()) <> storage.multisig then
+    let sender_address = (Tezos.get_self_address ()) in
     let func () =
       match (Tezos.get_entrypoint_opt "%setTokenMetadata" sender_address : set_token_metadata contract option) with
       | None -> (failwith("no setTokenMetadata entrypoint") : operation list)
@@ -290,8 +290,8 @@ let set_token_metadata (param, storage : set_token_metadata * storage): result =
     (([] : operation list), { storage with token_metadata = new_token_metadata })
 
 let set_metadata (param, storage : set_metadata_param * storage): result =
-  if Tezos.sender <> storage.multisig then
-    let sender_address = Tezos.self_address in
+  if (Tezos.get_sender()) <> storage.multisig then
+    let sender_address = (Tezos.get_self_address ()) in
     let func () =
       match (Tezos.get_entrypoint_opt "%setMetadata" sender_address : set_metadata_param contract option) with
       | None -> (failwith("no setMetadata entrypoint") : operation list)
@@ -302,23 +302,22 @@ let set_metadata (param, storage : set_metadata_param * storage): result =
     ([] : operation list), { storage with metadata = metadata_content }
 
 let mint (param, storage : mint * storage): result =
-  if Tezos.sender <> storage.multisig then
-    let sender_address = Tezos.self_address in
+  if (Tezos.get_sender()) <> storage.multisig then
+    let sender_address = (Tezos.get_self_address ()) in
     let func () =
       match (Tezos.get_entrypoint_opt "%mint" sender_address : mint contract option) with
       | None -> (failwith("no mint entrypoint") : operation list)
       | Some mint_entrypoint -> [Tezos.transaction param 0mutez mint_entrypoint] in
     (prepare_multisig "mint" param func storage), storage
   else
-    let new_ledger =
-      let to_balance = match Big_map.find_opt param.address_to ledger with
-        | Some value -> value
-        | None -> 0n in
-    let new_to_balance = to_balance + param.value in
-    new_ledger = Big_map.update param.address_to (some new_to_balance) ledger in
+    let new_to_balance =
+      match Big_map.find_opt param.address_to storage.ledger with
+        | Some value -> value + param.value
+        | None -> param.value in
+    let ledger = Big_map.update param.address_to (Some new_to_balance) storage.ledger in
 
     let new_total_supply = storage.total_supply + param.value in
-    (([] : operation list), { storage with ledger = new_ledger; total_supply = new_total_supply})
+    (([] : operation list), { storage with ledger = ledger; total_supply = new_total_supply})
 
 
 
@@ -330,9 +329,9 @@ let burn (param, storage : burn * storage): result =
     let ledger = storage.ledger in
 
     let new_allowances =
-      if Tezos.sender = param.address_from then allowances
+      if (Tezos.get_sender()) = param.address_from then allowances
       else
-        let allowance_key = { owner = param.address_from ; spender = Tezos.sender } in
+        let allowance_key = { owner = param.address_from ; spender = (Tezos.get_sender()) } in
         let authorized_value = match Big_map.find_opt allowance_key allowances with
           | Some value -> value
           | None -> 0n in
@@ -358,7 +357,7 @@ let burn (param, storage : burn * storage): result =
 
 let main (param, storage : parameter * storage) : result =
   begin
-    if Tezos.amount <> 0mutez
+    if (Tezos.get_amount()) <> 0mutez
       then failwith "DontSendTez"
     else ();
     match param with
@@ -366,7 +365,7 @@ let main (param, storage : parameter * storage) : result =
     | TransferBatch param -> transfer_batch (param, storage)
     | Approve param -> approve (param, storage)
     | Burn param -> burn (param, storage)
-      Mint param -> mint (param, storage)
+    | Mint param -> mint (param, storage)
     | GetAllowance param -> get_allowance (param, storage)
     | GetBalance param -> get_balance (param, storage)
     | GetTotalSupply param -> get_total_supply (param, storage)

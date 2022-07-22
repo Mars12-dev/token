@@ -27,6 +27,12 @@ let set_token_out (param : address) (store : storage) : return =
   else
     ([] : operation list), {store with token_out_address = param}
 
+let set_treasury (param : address) (store : storage) : return =
+  if Tezos.sender <> store.admin then
+       (failwith(error_CALLER_IS_NOT_ADMIN) : return)
+  else
+    ([] : operation list), {store with treasury = param}
+
 let set_token_price (param : nat) (store : storage) : return =
   if Tezos.sender <> store.admin then
        (failwith(error_CALLER_IS_NOT_ADMIN) : return)
@@ -49,6 +55,7 @@ let main (action, store : parameter * storage) : return =
  | SetPause p -> set_pause p store
  | SetTokenIn p -> set_token_in p store
  | SetTokenOut p -> set_token_Out p store
+ | SetTreasury p -> set_treasury p store
  |Buy p -> buy p store
 
 

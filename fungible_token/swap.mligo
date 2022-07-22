@@ -32,7 +32,7 @@ let set_token_out (param : address) (store : storage) : return =
     ([] : operation list), {store with token_out_address = param}
 
 let set_treasury (param : address) (store : storage) : return =
-  if Tezos.sender <> store.admin then
+  if (Tezos.get_sender ()) <> store.admin then
        (failwith(error_CALLER_IS_NOT_ADMIN) : return)
   else
     ([] : operation list), {store with treasury = param}
@@ -49,7 +49,7 @@ let buy(param : buy_param) (store : storage) : return =
      (failwith(error_SWAP_IS_PAUSED) : return)
  else
   let ops = ([] : operation list) in  
-  let ops = fa12_transfer store.token_in_address (Tezos.get_sender()) (Tezos.get_self_address ()) param.amount :: ops in
+  let ops = fa12_transfer store.token_in_address (Tezos.get_sender()) store.treasury param.amount :: ops in
   let ops = fa12_transfer store.token_out_address (Tezos.get_self_address ()) (Tezos.get_sender()) (param.amount / store.token_price) :: ops in
 
 (ops, store)

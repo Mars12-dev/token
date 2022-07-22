@@ -1,9 +1,11 @@
 { parameter
-    (or (or (pair %buy (address %address_to) (nat %amount)) (bool %setPause))
-        (or (address %setTokenIn) (address %setTokenOut))) ;
+    (or (or (or (pair %buy (address %address_to) (nat %amount)) (bool %setPause))
+            (or (address %setTokenIn) (address %setTokenOut)))
+        (address %setTreasury)) ;
   storage
     (pair (address %token_in_address)
           (address %token_out_address)
+          (address %treasury)
           (nat %token_price)
           (address %admin)
           (bool %paused)) ;
@@ -24,64 +26,75 @@
          UNPAIR ;
          IF_LEFT
            { IF_LEFT
-               { DIG 3 ;
-                 DROP ;
-                 DUP 2 ;
-                 GET 8 ;
-                 IF { DROP 3 ; PUSH nat 3 ; FAILWITH }
-                    { NIL operation ;
-                      DUP 2 ;
-                      CDR ;
-                      SELF_ADDRESS ;
-                      SENDER ;
-                      DUP 6 ;
-                      CAR ;
-                      PAIR 4 ;
-                      DUP 5 ;
-                      SWAP ;
-                      EXEC ;
-                      CONS ;
-                      DUP 3 ;
-                      GET 5 ;
-                      DIG 2 ;
-                      CDR ;
-                      EDIV ;
-                      IF_NONE { PUSH string "DIV by 0" ; FAILWITH } {} ;
-                      CAR ;
-                      SENDER ;
-                      SELF_ADDRESS ;
-                      DUP 5 ;
-                      GET 3 ;
-                      PAIR 4 ;
-                      DIG 3 ;
-                      SWAP ;
-                      EXEC ;
-                      CONS ;
-                      PAIR } }
+               { IF_LEFT
+                   { DIG 3 ;
+                     DROP ;
+                     DUP 2 ;
+                     GET 10 ;
+                     IF { DROP 3 ; PUSH nat 3 ; FAILWITH }
+                        { NIL operation ;
+                          DUP 2 ;
+                          CDR ;
+                          DUP 4 ;
+                          GET 5 ;
+                          SENDER ;
+                          DUP 6 ;
+                          CAR ;
+                          PAIR 4 ;
+                          DUP 5 ;
+                          SWAP ;
+                          EXEC ;
+                          CONS ;
+                          DUP 3 ;
+                          GET 7 ;
+                          DIG 2 ;
+                          CDR ;
+                          EDIV ;
+                          IF_NONE { PUSH string "DIV by 0" ; FAILWITH } {} ;
+                          CAR ;
+                          SENDER ;
+                          SELF_ADDRESS ;
+                          DUP 5 ;
+                          GET 3 ;
+                          PAIR 4 ;
+                          DIG 3 ;
+                          SWAP ;
+                          EXEC ;
+                          CONS ;
+                          PAIR } }
+                   { DIG 2 ;
+                     DROP ;
+                     DUP 2 ;
+                     GET 9 ;
+                     SENDER ;
+                     COMPARE ;
+                     NEQ ;
+                     IF { DROP 2 ; FAILWITH }
+                        { DIG 2 ; DROP ; UPDATE 10 ; NIL operation ; PAIR } } }
                { DIG 2 ;
                  DROP ;
-                 DUP 2 ;
-                 GET 7 ;
-                 SENDER ;
-                 COMPARE ;
-                 NEQ ;
-                 IF { DROP 2 ; FAILWITH }
-                    { DIG 2 ; DROP ; UPDATE 8 ; NIL operation ; PAIR } } }
+                 IF_LEFT
+                   { DUP 2 ;
+                     GET 9 ;
+                     SENDER ;
+                     COMPARE ;
+                     NEQ ;
+                     IF { DROP 2 ; FAILWITH }
+                        { DIG 2 ; DROP ; UPDATE 1 ; NIL operation ; PAIR } }
+                   { DUP 2 ;
+                     GET 9 ;
+                     SENDER ;
+                     COMPARE ;
+                     NEQ ;
+                     IF { DROP 2 ; FAILWITH }
+                        { DIG 2 ; DROP ; UPDATE 3 ; NIL operation ; PAIR } } } }
            { DIG 2 ;
              DROP ;
-             IF_LEFT
-               { DUP 2 ;
-                 GET 7 ;
-                 SENDER ;
-                 COMPARE ;
-                 NEQ ;
-                 IF { DROP 2 ; FAILWITH }
-                    { DIG 2 ; DROP ; UPDATE 1 ; NIL operation ; PAIR } }
-               { DUP 2 ;
-                 GET 7 ;
-                 SENDER ;
-                 COMPARE ;
-                 NEQ ;
-                 IF { DROP 2 ; FAILWITH }
-                    { DIG 2 ; DROP ; UPDATE 3 ; NIL operation ; PAIR } } } } }
+             DUP 2 ;
+             GET 9 ;
+             SENDER ;
+             COMPARE ;
+             NEQ ;
+             IF { DROP 2 ; FAILWITH }
+                { DIG 2 ; DROP ; UPDATE 5 ; NIL operation ; PAIR } } } }
 

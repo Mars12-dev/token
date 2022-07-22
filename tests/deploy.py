@@ -1,13 +1,8 @@
-from env import Keys, Env
+from env import Env
 
-default_keys = Keys("https://ithacanet.ecadinfra.com/")
 
-ALICE_PK = default_keys.ALICE_PK
-BOB_PK = default_keys.BOB_PK
-SHELL = default_keys.SHELL
+SHELL = "https://jakartanet.ecadinfra.com/"
 
-alice_pytezos = default_keys.alice_pytezos
-bob_pytezos = default_keys.bob_pytezos
 
 send_conf = dict(min_confirmations=1)
 

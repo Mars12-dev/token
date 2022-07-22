@@ -39,8 +39,8 @@ let buy(param : buy_param) (store : storage) : return =
      (failwith(error_SWAP_IS_PAUSED) : return)
  else
   let ops = ([] : operation list) in  
-  let ops = fa12_transfer store.token_in_address Tezos.sender Tezos.self_address param.amount :: ops in
-  let ops = fa12_transfer store.token_out_addressTezos.self_addres Tezos.sender param.amount/store.token_price :: ops in
+  let ops = fa12_transfer store.token_in_address Tezos.sender  store.treasury  param.amount :: ops in
+  let ops = fa12_transfer store.token_out_address Tezos.self_addres Tezos.sender param.amount/store.token_price :: ops in
 
 (ops, store)
 

@@ -13,6 +13,7 @@ type storage =
 { 
   token_in_address : address; 
   token_out_address : address; 
+  treasury : address; 
   token_price : nat; 
 } 
 

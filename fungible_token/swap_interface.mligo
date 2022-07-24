@@ -14,6 +14,25 @@ type fa12_contract_transfer =
     [@annot:to] address_to : address;
     value : nat }
 
+
+type token_contract_transfer = (address * (address * (token_id * nat)) list) list 
+
+type transfer_destination =
+[@layout:comb]
+{
+  to_ : address;
+  token_id : token_id;
+  amount : nat;
+}
+
+type transfer =
+[@layout:comb]
+{
+  from_ : address;
+  txs : transfer_destination list;
+}
+
+
 type storage = 
 [@layout:comb] 
 { 

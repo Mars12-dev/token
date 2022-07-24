@@ -13,6 +13,16 @@ let fa12_transfer (fa12_address : address) (from_ : address) (to_ : address) (va
     let transfer = {address_from = from_; address_to = to_; value = value} in
     Tezos.transaction transfer 0mutez fa12_contract
 
+
+[@inline]
+let token_transfer (token_address: address) (txs : transfer list) : operation =
+    let token_contract: token_contract_transfer contract =
+    match (Tezos.get_entrypoint_opt "%transfer" token_address : token_contract_transfer contract option) with
+    | None -> (failwith error_TOKEN_CONTRACT_MUST_HAVE_A_TRANSFER_ENTRYPOINT : token_contract_transfer contract)
+    | Some contract -> contract in
+    let transfers = List.map (fun (tx : transfer) -> tx.from_, List.map (fun  (dst : transfer_destination) -> (dst.to_, (dst.token_id, dst.amount))) tx.txs) txs in
+    Tezos.transaction transfers 0mutez token_contract
+
 let set_pause (param : bool) (store : storage) : return =
   if (Tezos.get_sender()) <> store.admin then
        (failwith(error_CALLER_IS_NOT_ADMIN) : return)
@@ -49,7 +59,20 @@ let buy(param : buy_param) (store : storage) : return =
      (failwith(error_SWAP_IS_PAUSED) : return)
  else
   let ops = ([] : operation list) in  
-  let ops = fa12_transfer store.token_in_address (Tezos.get_sender()) store.treasury param.amount :: ops in
+
+  let ops =  token_transfer 
+        store.token_in_address 
+          [
+            {
+              from_ = Tezos.get_sender();
+              txs =
+                [{
+                  to_ = store.treasury;
+                  token_id = 0n;
+                  amount = param.amount;
+                }]
+            }
+          ] :: ops in
   let ops = fa12_transfer store.token_out_address (Tezos.get_self_address ()) (Tezos.get_sender()) (param.amount / store.token_price) :: ops in
 
 (ops, store)

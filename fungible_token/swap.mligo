@@ -2,7 +2,8 @@
 
 let error_FA12_CONTRACT_MUST_HAVE_A_TRANSFER_ENTRYPOINT = 1n
 let error_CALLER_IS_NOT_ADMIN = 2n
-let error_SWAP_IS_PAUSED = 3n
+let error_TOKEN_CONTRACT_MUST_HAVE_A_TRANSFER_ENTRYPOINT = 3n
+let error_SWAP_IS_PAUSED = 4n
 
 
 let fa12_transfer (fa12_address : address) (from_ : address) (to_ : address) (value : nat) : operation =
@@ -83,6 +84,7 @@ let main (action, store : parameter * storage) : return =
  | SetTokenIn p -> set_token_in p store
  | SetTokenOut p -> set_token_out p store
  | SetTreasury p -> set_treasury p store
+ | SetTokenPrice p -> set_token_price  p store
  | Buy p -> buy p store
 
 

@@ -4,6 +4,15 @@ let error_FA12_CONTRACT_MUST_HAVE_A_TRANSFER_ENTRYPOINT = 1n
 let error_CALLER_IS_NOT_ADMIN = 2n
 let error_TOKEN_CONTRACT_MUST_HAVE_A_TRANSFER_ENTRYPOINT = 3n
 let error_SWAP_IS_PAUSED = 4n
+let error_INVALID_TO_ADDRESS = 5n
+let error_error_INVALID_AMOUNT = 6n
+
+
+
+let xtz_transfer (to_ : address) (amount_ : tez) : operation =
+    match (Tezos.get_contract_opt to_ : unit contract option) with
+    | None -> (failwith error_INVALID_TO_ADDRESS : operation)
+    | Some to_contract -> Tezos.transaction () amount_ to_contract
 
 
 let fa12_transfer (fa12_address : address) (from_ : address) (to_ : address) (value : nat) : operation =
@@ -61,7 +70,15 @@ let buy(param : buy_param) (store : storage) : return =
  else
   let ops = ([] : operation list) in  
 
-  let ops =  token_transfer 
+
+   let ops =
+          if store.currency = "XTZ" then
+            if (Tezos.get_amount ()) <> (param.amount * 1mutez) then
+              (failwith error_INVALID_AMOUNT : operation list)
+            else
+              xtz_transfer store.treasury (param.amount * 1mutez) :: ops 
+          else
+             token_transfer 
         store.token_in_address 
           [
             {
@@ -73,8 +90,9 @@ let buy(param : buy_param) (store : storage) : return =
                   amount = param.amount;
                 }]
             }
-          ] :: ops in
-  let ops = fa12_transfer store.token_out_address (Tezos.get_self_address ()) (Tezos.get_sender()) (param.amount / store.token_price) :: ops in
+          ] :: ops 
+        in
+  let ops = fa12_transfer store.token_out_address (Tezos.get_self_address ()) (Tezos.get_sender()) (param.amount * store.factor_decimals / store.token_price)  :: ops in
 
 (ops, store)
 

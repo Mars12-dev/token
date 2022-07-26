@@ -42,6 +42,8 @@ type storage =
   token_price : nat; 
   admin : address;
   paused : bool;
+  currency: string;
+  factor_decimals : nat;
 } 
 
 type parameter = 

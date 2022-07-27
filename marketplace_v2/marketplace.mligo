@@ -685,6 +685,12 @@ let accept_offer (param : accept_offer_param) (store : storage) : return =
         } in
       (ops, new_store)
 
+let update_admin (param : address) (store : storage) : return =
+  if (Tezos.get_sender ()) <> store.admin then
+    (failwith("not admin") : return)
+  else
+    ([] : operation list), {store with admin = param}
+
 
 let main (action, store : parameter * storage) : return =
  match action with
@@ -698,7 +704,8 @@ let main (action, store : parameter * storage) : return =
  | UpdateRoyalties p -> update_royalties p store
  | UpdateAllowedTokens p -> update_allowed_tokens p store
  | SetOracleTolerance p -> set_oracle_tolerance p store
- | UpdateMultisig p -> update_multisig p store
+ | UpdateAdmin p -> update_admin p store
+//  | UpdateMultisig p -> update_multisig p store
  | AddToMarketplace p -> add_to_marketplace p store
  | RemoveFromMarketplace p -> remove_from_marketplace p store
  | Collect p ->  collect p store

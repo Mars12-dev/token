@@ -5,7 +5,7 @@ let error_CALLER_IS_NOT_ADMIN = 2n
 let error_TOKEN_CONTRACT_MUST_HAVE_A_TRANSFER_ENTRYPOINT = 3n
 let error_SWAP_IS_PAUSED = 4n
 let error_INVALID_TO_ADDRESS = 5n
-let error_error_INVALID_AMOUNT = 6n
+let error_INVALID_AMOUNT = 6n
 
 
 

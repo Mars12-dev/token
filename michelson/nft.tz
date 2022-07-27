@@ -60,20 +60,67 @@
                      SWAP ;
                      NIL operation ;
                      DIG 2 ;
-                     CONS }
+                     CONS ;
+                     PAIR }
                    { DIG 2 ;
                      DROP ;
                      DUP 2 ;
                      GET 11 ;
                      IF { DROP 2 ; PUSH nat 8 ; FAILWITH }
-                        { PUSH bool False ;
-                          DUP 3 ;
-                          GET 9 ;
+                        { DUP 2 ;
+                          GET 12 ;
                           SENDER ;
-                          MEM ;
                           COMPARE ;
-                          EQ ;
-                          IF { DROP 2 ; PUSH nat 2 ; FAILWITH }
+                          NEQ ;
+                          IF { SELF_ADDRESS ;
+                               DUP 3 ;
+                               DIG 3 ;
+                               GET 12 ;
+                               CONTRACT %callMultisig
+                                 (pair (pair %entrypoint_signature
+                                          (string %name)
+                                          (bytes %params)
+                                          (address %source_contract))
+                                       (lambda %callback unit (list operation))) ;
+                               IF_NONE
+                                 { SWAP ; DIG 2 ; DROP 2 ; PUSH string "no call entrypoint" ; FAILWITH }
+                                 { DUP 4 ;
+                                   PACK ;
+                                   SHA256 ;
+                                   SELF_ADDRESS ;
+                                   SWAP ;
+                                   PUSH string "mint" ;
+                                   PAIR 3 ;
+                                   SWAP ;
+                                   PUSH mutez 0 ;
+                                   LAMBDA
+                                     (pair (pair address (pair nat (map string bytes) nat address)) unit)
+                                     (list operation)
+                                     { UNPAIR ;
+                                       UNPAIR ;
+                                       DIG 2 ;
+                                       DROP ;
+                                       CONTRACT %mint
+                                         (pair (nat %token_id)
+                                               (map %token_metadata string bytes)
+                                               (nat %amount_)
+                                               (address %owner)) ;
+                                       IF_NONE
+                                         { DROP ; PUSH string "no mint entrypoint" ; FAILWITH }
+                                         { NIL operation ; SWAP ; PUSH mutez 0 ; DIG 3 ; TRANSFER_TOKENS ; CONS } } ;
+                                   DUP 7 ;
+                                   DUP 7 ;
+                                   PAIR ;
+                                   APPLY ;
+                                   DIG 5 ;
+                                   DIG 6 ;
+                                   DROP 2 ;
+                                   DIG 3 ;
+                                   PAIR ;
+                                   TRANSFER_TOKENS ;
+                                   NIL operation ;
+                                   SWAP ;
+                                   CONS } }
                              { UNPAIR 4 ;
                                DUP 5 ;
                                CAR ;
@@ -100,9 +147,9 @@
                                SOME ;
                                DIG 3 ;
                                UPDATE ;
-                               UPDATE 7 } } ;
-                     NIL operation } ;
-                 PAIR }
+                               UPDATE 7 ;
+                               NIL operation } ;
+                          PAIR } } }
                { IF_LEFT
                    { DIG 2 ;
                      DROP ;
@@ -117,7 +164,8 @@
                           GET 12 ;
                           CONTRACT %callMultisig
                             (pair (pair %entrypoint_signature
-                                     (pair (string %name) (bytes %params))
+                                     (string %name)
+                                     (bytes %params)
                                      (address %source_contract))
                                   (lambda %callback unit (list operation))) ;
                           IF_NONE
@@ -128,8 +176,7 @@
                               SELF_ADDRESS ;
                               SWAP ;
                               PUSH string "setPause" ;
-                              PAIR ;
-                              PAIR ;
+                              PAIR 3 ;
                               SWAP ;
                               PUSH mutez 0 ;
                               LAMBDA
@@ -284,7 +331,8 @@
                           GET 12 ;
                           CONTRACT %callMultisig
                             (pair (pair %entrypoint_signature
-                                     (pair (string %name) (bytes %params))
+                                     (string %name)
+                                     (bytes %params)
                                      (address %source_contract))
                                   (lambda %callback unit (list operation))) ;
                           IF_NONE
@@ -295,8 +343,7 @@
                               SELF_ADDRESS ;
                               SWAP ;
                               PUSH string "update_multisig" ;
-                              PAIR ;
-                              PAIR ;
+                              PAIR 3 ;
                               SWAP ;
                               PUSH mutez 0 ;
                               LAMBDA
@@ -336,7 +383,8 @@
                           GET 12 ;
                           CONTRACT %callMultisig
                             (pair (pair %entrypoint_signature
-                                     (pair (string %name) (bytes %params))
+                                     (string %name)
+                                     (bytes %params)
                                      (address %source_contract))
                                   (lambda %callback unit (list operation))) ;
                           IF_NONE
@@ -347,8 +395,7 @@
                               SELF_ADDRESS ;
                               SWAP ;
                               PUSH string "updateProxy" ;
-                              PAIR ;
-                              PAIR ;
+                              PAIR 3 ;
                               SWAP ;
                               PUSH mutez 0 ;
                               LAMBDA

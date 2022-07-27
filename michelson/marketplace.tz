@@ -38,13 +38,13 @@
                            (string %token_symbol)
                            (nat %ft_amount))
                         (int %setOracleTolerance))
-                    (or (bool %setPause)
-                        (pair %updateAllowedTokens
+                    (or (bool %setPause) (address %updateAdmin)))
+                (or (or (pair %updateAllowedTokens
                            (string %token_symbol)
                            (or %direction
                               (pair %add_token (address %fa_address) (string %fa_type))
-                              (unit %remove_token)))))
-                (or (or (nat %updateFee) (address %updateMultisig))
+                              (unit %remove_token)))
+                        (nat %updateFee))
                     (or (pair %updateOffer
                            (nat %token_id)
                            (address %token_origin)
@@ -107,7 +107,7 @@
              (pair (string %token_symbol) (address %fa_address) (string %fa_type)))
           (big_map %available_pairs (pair string string) string)
           (address %oracle)
-          (address %multisig)
+          (address %admin)
           (address %treasury)
           (int %oracle_tolerance)) ;
   code { UNPAIR ;
@@ -1035,51 +1035,7 @@
                              SENDER ;
                              COMPARE ;
                              NEQ ;
-                             IF { SELF_ADDRESS ;
-                                  DUP 3 ;
-                                  DIG 3 ;
-                                  GET 27 ;
-                                  CONTRACT %callMultisig
-                                    (pair (pair %entrypoint_signature
-                                             (pair (string %name) (bytes %params))
-                                             (address %source_contract))
-                                          (lambda %callback unit (list operation))) ;
-                                  IF_NONE
-                                    { SWAP ; DIG 2 ; DROP 2 ; PUSH string "no call entrypoint" ; FAILWITH }
-                                    { DUP 4 ;
-                                      PACK ;
-                                      SHA256 ;
-                                      SELF_ADDRESS ;
-                                      SWAP ;
-                                      PUSH string "addCollection" ;
-                                      PAIR ;
-                                      PAIR ;
-                                      SWAP ;
-                                      PUSH mutez 0 ;
-                                      LAMBDA
-                                        (pair (pair address address) unit)
-                                        (list operation)
-                                        { UNPAIR ;
-                                          UNPAIR ;
-                                          DIG 2 ;
-                                          DROP ;
-                                          CONTRACT %addCollection address ;
-                                          IF_NONE
-                                            { DROP ; PUSH string "no addCollection entrypoint" ; FAILWITH }
-                                            { NIL operation ; SWAP ; PUSH mutez 0 ; DIG 3 ; TRANSFER_TOKENS ; CONS } } ;
-                                      DUP 7 ;
-                                      DUP 7 ;
-                                      PAIR ;
-                                      APPLY ;
-                                      DIG 5 ;
-                                      DIG 6 ;
-                                      DROP 2 ;
-                                      DIG 3 ;
-                                      PAIR ;
-                                      TRANSFER_TOKENS ;
-                                      NIL operation ;
-                                      SWAP ;
-                                      CONS } }
+                             IF { DROP 2 ; PUSH string "not admin" ; FAILWITH }
                                 { DUP 2 ;
                                   DIG 2 ;
                                   CAR ;
@@ -1088,8 +1044,8 @@
                                   SWAP ;
                                   UPDATE ;
                                   UPDATE 1 ;
-                                  NIL operation } ;
-                             PAIR }
+                                  NIL operation ;
+                                  PAIR } }
                            { DUP 2 ;
                              GET 19 ;
                              IF { DROP 2 ; PUSH nat 117 ; FAILWITH }
@@ -2026,51 +1982,7 @@
                              SENDER ;
                              COMPARE ;
                              NEQ ;
-                             IF { SELF_ADDRESS ;
-                                  DUP 3 ;
-                                  DIG 3 ;
-                                  GET 27 ;
-                                  CONTRACT %callMultisig
-                                    (pair (pair %entrypoint_signature
-                                             (pair (string %name) (bytes %params))
-                                             (address %source_contract))
-                                          (lambda %callback unit (list operation))) ;
-                                  IF_NONE
-                                    { SWAP ; DIG 2 ; DROP 2 ; PUSH string "no call entrypoint" ; FAILWITH }
-                                    { DUP 4 ;
-                                      PACK ;
-                                      SHA256 ;
-                                      SELF_ADDRESS ;
-                                      SWAP ;
-                                      PUSH string "removeCollection" ;
-                                      PAIR ;
-                                      PAIR ;
-                                      SWAP ;
-                                      PUSH mutez 0 ;
-                                      LAMBDA
-                                        (pair (pair address address) unit)
-                                        (list operation)
-                                        { UNPAIR ;
-                                          UNPAIR ;
-                                          DIG 2 ;
-                                          DROP ;
-                                          CONTRACT %removeCollection address ;
-                                          IF_NONE
-                                            { DROP ; PUSH string "no removeCollection entrypoint" ; FAILWITH }
-                                            { NIL operation ; SWAP ; PUSH mutez 0 ; DIG 3 ; TRANSFER_TOKENS ; CONS } } ;
-                                      DUP 7 ;
-                                      DUP 7 ;
-                                      PAIR ;
-                                      APPLY ;
-                                      DIG 5 ;
-                                      DIG 6 ;
-                                      DROP 2 ;
-                                      DIG 3 ;
-                                      PAIR ;
-                                      TRANSFER_TOKENS ;
-                                      NIL operation ;
-                                      SWAP ;
-                                      CONS } }
+                             IF { DROP 2 ; PUSH string "not admin" ; FAILWITH }
                                 { DUP 2 ;
                                   DIG 2 ;
                                   CAR ;
@@ -2079,8 +1991,8 @@
                                   SWAP ;
                                   UPDATE ;
                                   UPDATE 1 ;
-                                  NIL operation } ;
-                             PAIR }
+                                  NIL operation ;
+                                  PAIR } }
                            { DUP 2 ;
                              GET 11 ;
                              DUP 2 ;
@@ -2271,161 +2183,31 @@
                              SENDER ;
                              COMPARE ;
                              NEQ ;
-                             IF { SELF_ADDRESS ;
-                                  DUP 3 ;
-                                  DIG 3 ;
-                                  GET 27 ;
-                                  CONTRACT %callMultisig
-                                    (pair (pair %entrypoint_signature
-                                             (pair (string %name) (bytes %params))
-                                             (address %source_contract))
-                                          (lambda %callback unit (list operation))) ;
-                                  IF_NONE
-                                    { SWAP ; DIG 2 ; DROP 2 ; PUSH string "no call entrypoint" ; FAILWITH }
-                                    { DUP 4 ;
-                                      PACK ;
-                                      SHA256 ;
-                                      SELF_ADDRESS ;
-                                      SWAP ;
-                                      PUSH string "setOracleTolerance" ;
-                                      PAIR ;
-                                      PAIR ;
-                                      SWAP ;
-                                      PUSH mutez 0 ;
-                                      LAMBDA
-                                        (pair (pair address int) unit)
-                                        (list operation)
-                                        { UNPAIR ;
-                                          UNPAIR ;
-                                          DIG 2 ;
-                                          DROP ;
-                                          CONTRACT %setOracleTolerance int ;
-                                          IF_NONE
-                                            { DROP ; PUSH string "no setOracleTolerance entrypoint" ; FAILWITH }
-                                            { NIL operation ; SWAP ; PUSH mutez 0 ; DIG 3 ; TRANSFER_TOKENS ; CONS } } ;
-                                      DUP 7 ;
-                                      DUP 7 ;
-                                      PAIR ;
-                                      APPLY ;
-                                      DIG 5 ;
-                                      DIG 6 ;
-                                      DROP 2 ;
-                                      DIG 3 ;
-                                      PAIR ;
-                                      TRANSFER_TOKENS ;
-                                      NIL operation ;
-                                      SWAP ;
-                                      CONS } }
-                                { UPDATE 30 ; NIL operation } ;
-                             PAIR } }
+                             IF { DROP 2 ; PUSH string "not admin" ; FAILWITH }
+                                { UPDATE 30 ; NIL operation ; PAIR } } }
                        { IF_LEFT
                            { DUP 2 ;
                              GET 27 ;
                              SENDER ;
                              COMPARE ;
                              NEQ ;
-                             IF { SELF_ADDRESS ;
-                                  DUP 3 ;
-                                  DIG 3 ;
-                                  GET 27 ;
-                                  CONTRACT %callMultisig
-                                    (pair (pair %entrypoint_signature
-                                             (pair (string %name) (bytes %params))
-                                             (address %source_contract))
-                                          (lambda %callback unit (list operation))) ;
-                                  IF_NONE
-                                    { SWAP ; DIG 2 ; DROP 2 ; PUSH string "no call entrypoint" ; FAILWITH }
-                                    { DUP 4 ;
-                                      PACK ;
-                                      SHA256 ;
-                                      SELF_ADDRESS ;
-                                      SWAP ;
-                                      PUSH string "setPause" ;
-                                      PAIR ;
-                                      PAIR ;
-                                      SWAP ;
-                                      PUSH mutez 0 ;
-                                      LAMBDA
-                                        (pair (pair address bool) unit)
-                                        (list operation)
-                                        { UNPAIR ;
-                                          UNPAIR ;
-                                          DIG 2 ;
-                                          DROP ;
-                                          CONTRACT %setPause bool ;
-                                          IF_NONE
-                                            { DROP ; PUSH string "no setPause entrypoint" ; FAILWITH }
-                                            { NIL operation ; SWAP ; PUSH mutez 0 ; DIG 3 ; TRANSFER_TOKENS ; CONS } } ;
-                                      DUP 7 ;
-                                      DUP 7 ;
-                                      PAIR ;
-                                      APPLY ;
-                                      DIG 5 ;
-                                      DIG 6 ;
-                                      DROP 2 ;
-                                      DIG 3 ;
-                                      PAIR ;
-                                      TRANSFER_TOKENS ;
-                                      NIL operation ;
-                                      SWAP ;
-                                      CONS } }
-                                { UPDATE 19 ; NIL operation } ;
-                             PAIR }
+                             IF { DROP 2 ; PUSH string "not admin" ; FAILWITH }
+                                { UPDATE 19 ; NIL operation ; PAIR } }
                            { DUP 2 ;
                              GET 27 ;
                              SENDER ;
                              COMPARE ;
                              NEQ ;
-                             IF { SELF_ADDRESS ;
-                                  DUP 3 ;
-                                  DIG 3 ;
-                                  GET 27 ;
-                                  CONTRACT %callMultisig
-                                    (pair (pair %entrypoint_signature
-                                             (pair (string %name) (bytes %params))
-                                             (address %source_contract))
-                                          (lambda %callback unit (list operation))) ;
-                                  IF_NONE
-                                    { SWAP ; DIG 2 ; DROP 2 ; PUSH string "no call entrypoint" ; FAILWITH }
-                                    { DUP 4 ;
-                                      PACK ;
-                                      SHA256 ;
-                                      SELF_ADDRESS ;
-                                      SWAP ;
-                                      PUSH string "updateAllowedTokens" ;
-                                      PAIR ;
-                                      PAIR ;
-                                      SWAP ;
-                                      PUSH mutez 0 ;
-                                      LAMBDA
-                                        (pair (pair address (pair string (or (pair address string) unit))) unit)
-                                        (list operation)
-                                        { UNPAIR ;
-                                          UNPAIR ;
-                                          DIG 2 ;
-                                          DROP ;
-                                          CONTRACT %updateAllowedTokens
-                                            (pair (string %token_symbol)
-                                                  (or %direction
-                                                     (pair %add_token (address %fa_address) (string %fa_type))
-                                                     (unit %remove_token))) ;
-                                          IF_NONE
-                                            { DROP ; PUSH string "no updateAllowedTokens entrypoint" ; FAILWITH }
-                                            { NIL operation ; SWAP ; PUSH mutez 0 ; DIG 3 ; TRANSFER_TOKENS ; CONS } } ;
-                                      DUP 7 ;
-                                      DUP 7 ;
-                                      PAIR ;
-                                      APPLY ;
-                                      DIG 5 ;
-                                      DIG 6 ;
-                                      DROP 2 ;
-                                      DIG 3 ;
-                                      PAIR ;
-                                      TRANSFER_TOKENS ;
-                                      NIL operation ;
-                                      SWAP ;
-                                      CONS } ;
-                                  PAIR }
+                             IF { DROP 2 ; PUSH string "not admin" ; FAILWITH }
+                                { UPDATE 27 ; NIL operation ; PAIR } } } }
+                   { IF_LEFT
+                       { IF_LEFT
+                           { DUP 2 ;
+                             GET 27 ;
+                             SENDER ;
+                             COMPARE ;
+                             NEQ ;
+                             IF { DROP 2 ; PUSH string "not admin" ; FAILWITH }
                                 { DUP ;
                                   CDR ;
                                   IF_LEFT
@@ -2492,112 +2274,14 @@
                                       UPDATE ;
                                       UPDATE 23 ;
                                       NIL operation ;
-                                      PAIR } } } } }
-                   { IF_LEFT
-                       { IF_LEFT
+                                      PAIR } } }
                            { DUP 2 ;
                              GET 27 ;
                              SENDER ;
                              COMPARE ;
                              NEQ ;
-                             IF { SELF_ADDRESS ;
-                                  DUP 3 ;
-                                  DIG 3 ;
-                                  GET 27 ;
-                                  CONTRACT %callMultisig
-                                    (pair (pair %entrypoint_signature
-                                             (pair (string %name) (bytes %params))
-                                             (address %source_contract))
-                                          (lambda %callback unit (list operation))) ;
-                                  IF_NONE
-                                    { SWAP ; DIG 2 ; DROP 2 ; PUSH string "no call entrypoint" ; FAILWITH }
-                                    { DUP 4 ;
-                                      PACK ;
-                                      SHA256 ;
-                                      SELF_ADDRESS ;
-                                      SWAP ;
-                                      PUSH string "updateFee" ;
-                                      PAIR ;
-                                      PAIR ;
-                                      SWAP ;
-                                      PUSH mutez 0 ;
-                                      LAMBDA
-                                        (pair (pair address nat) unit)
-                                        (list operation)
-                                        { UNPAIR ;
-                                          UNPAIR ;
-                                          DIG 2 ;
-                                          DROP ;
-                                          CONTRACT %updateFee nat ;
-                                          IF_NONE
-                                            { DROP ; PUSH string "no updateFee entrypoint" ; FAILWITH }
-                                            { NIL operation ; SWAP ; PUSH mutez 0 ; DIG 3 ; TRANSFER_TOKENS ; CONS } } ;
-                                      DUP 7 ;
-                                      DUP 7 ;
-                                      PAIR ;
-                                      APPLY ;
-                                      DIG 5 ;
-                                      DIG 6 ;
-                                      DROP 2 ;
-                                      DIG 3 ;
-                                      PAIR ;
-                                      TRANSFER_TOKENS ;
-                                      NIL operation ;
-                                      SWAP ;
-                                      CONS } }
-                                { UPDATE 17 ; NIL operation } }
-                           { DUP 2 ;
-                             GET 27 ;
-                             SENDER ;
-                             COMPARE ;
-                             NEQ ;
-                             IF { SELF_ADDRESS ;
-                                  DUP 3 ;
-                                  DIG 3 ;
-                                  GET 27 ;
-                                  CONTRACT %callMultisig
-                                    (pair (pair %entrypoint_signature
-                                             (pair (string %name) (bytes %params))
-                                             (address %source_contract))
-                                          (lambda %callback unit (list operation))) ;
-                                  IF_NONE
-                                    { SWAP ; DIG 2 ; DROP 2 ; PUSH string "no call entrypoint" ; FAILWITH }
-                                    { DUP 4 ;
-                                      PACK ;
-                                      SHA256 ;
-                                      SELF_ADDRESS ;
-                                      SWAP ;
-                                      PUSH string "updateMultisig" ;
-                                      PAIR ;
-                                      PAIR ;
-                                      SWAP ;
-                                      PUSH mutez 0 ;
-                                      LAMBDA
-                                        (pair (pair address address) unit)
-                                        (list operation)
-                                        { UNPAIR ;
-                                          UNPAIR ;
-                                          DIG 2 ;
-                                          DROP ;
-                                          CONTRACT %updateMultisig address ;
-                                          IF_NONE
-                                            { DROP ; PUSH string "no updateMultisig entrypoint" ; FAILWITH }
-                                            { NIL operation ; SWAP ; PUSH mutez 0 ; DIG 3 ; TRANSFER_TOKENS ; CONS } } ;
-                                      DUP 7 ;
-                                      DUP 7 ;
-                                      PAIR ;
-                                      APPLY ;
-                                      DIG 5 ;
-                                      DIG 6 ;
-                                      DROP 2 ;
-                                      DIG 3 ;
-                                      PAIR ;
-                                      TRANSFER_TOKENS ;
-                                      NIL operation ;
-                                      SWAP ;
-                                      CONS } }
-                                { UPDATE 27 ; NIL operation } } ;
-                         PAIR }
+                             IF { DROP 2 ; PUSH string "not admin" ; FAILWITH }
+                                { UPDATE 17 ; NIL operation ; PAIR } } }
                        { IF_LEFT
                            { DUP 2 ;
                              GET 19 ;
@@ -3095,53 +2779,8 @@
                              SENDER ;
                              COMPARE ;
                              NEQ ;
-                             IF { SELF_ADDRESS ;
-                                  DUP 3 ;
-                                  DIG 3 ;
-                                  GET 27 ;
-                                  CONTRACT %callMultisig
-                                    (pair (pair %entrypoint_signature
-                                             (pair (string %name) (bytes %params))
-                                             (address %source_contract))
-                                          (lambda %callback unit (list operation))) ;
-                                  IF_NONE
-                                    { SWAP ; DIG 2 ; DROP 2 ; PUSH string "no call entrypoint" ; FAILWITH }
-                                    { DUP 4 ;
-                                      PACK ;
-                                      SHA256 ;
-                                      SELF_ADDRESS ;
-                                      SWAP ;
-                                      PUSH string "updateOracleAddress" ;
-                                      PAIR ;
-                                      PAIR ;
-                                      SWAP ;
-                                      PUSH mutez 0 ;
-                                      LAMBDA
-                                        (pair (pair address address) unit)
-                                        (list operation)
-                                        { UNPAIR ;
-                                          UNPAIR ;
-                                          DIG 2 ;
-                                          DROP ;
-                                          CONTRACT %updateOracleAddress address ;
-                                          IF_NONE
-                                            { DROP ; PUSH string "no updateOracleAddress entrypoint" ; FAILWITH }
-                                            { NIL operation ; SWAP ; PUSH mutez 0 ; DIG 3 ; TRANSFER_TOKENS ; CONS } } ;
-                                      DUP 7 ;
-                                      DUP 7 ;
-                                      PAIR ;
-                                      APPLY ;
-                                      DIG 5 ;
-                                      DIG 6 ;
-                                      DROP 2 ;
-                                      DIG 3 ;
-                                      PAIR ;
-                                      TRANSFER_TOKENS ;
-                                      NIL operation ;
-                                      SWAP ;
-                                      CONS } }
-                                { UPDATE 25 ; NIL operation } ;
-                             PAIR } } } } }
+                             IF { DROP 2 ; PUSH string "not admin" ; FAILWITH }
+                                { UPDATE 25 ; NIL operation ; PAIR } } } } } }
            { IF_LEFT
                { IF_LEFT
                    { IF_LEFT
@@ -3150,104 +2789,15 @@
                          SENDER ;
                          COMPARE ;
                          NEQ ;
-                         IF { SELF_ADDRESS ;
-                              DUP 3 ;
-                              DIG 3 ;
-                              GET 27 ;
-                              CONTRACT %callMultisig
-                                (pair (pair %entrypoint_signature
-                                         (pair (string %name) (bytes %params))
-                                         (address %source_contract))
-                                      (lambda %callback unit (list operation))) ;
-                              IF_NONE
-                                { SWAP ; DIG 2 ; DROP 2 ; PUSH string "no call entrypoint" ; FAILWITH }
-                                { DUP 4 ;
-                                  PACK ;
-                                  SHA256 ;
-                                  SELF_ADDRESS ;
-                                  SWAP ;
-                                  PUSH string "updateRoyalties" ;
-                                  PAIR ;
-                                  PAIR ;
-                                  SWAP ;
-                                  PUSH mutez 0 ;
-                                  LAMBDA
-                                    (pair (pair address nat) unit)
-                                    (list operation)
-                                    { UNPAIR ;
-                                      UNPAIR ;
-                                      DIG 2 ;
-                                      DROP ;
-                                      CONTRACT %updateRoyalties nat ;
-                                      IF_NONE
-                                        { DROP ; PUSH string "no updateRoyalties entrypoint" ; FAILWITH }
-                                        { NIL operation ; SWAP ; PUSH mutez 0 ; DIG 3 ; TRANSFER_TOKENS ; CONS } } ;
-                                  DUP 7 ;
-                                  DUP 7 ;
-                                  PAIR ;
-                                  APPLY ;
-                                  DIG 5 ;
-                                  DIG 6 ;
-                                  DROP 2 ;
-                                  DIG 3 ;
-                                  PAIR ;
-                                  TRANSFER_TOKENS ;
-                                  NIL operation ;
-                                  SWAP ;
-                                  CONS } }
-                            { UPDATE 15 ; NIL operation } }
+                         IF { DROP 2 ; PUSH string "not admin" ; FAILWITH }
+                            { UPDATE 15 ; NIL operation ; PAIR } }
                        { DUP 2 ;
                          GET 27 ;
                          SENDER ;
                          COMPARE ;
                          NEQ ;
-                         IF { SELF_ADDRESS ;
-                              DUP 3 ;
-                              DIG 3 ;
-                              GET 27 ;
-                              CONTRACT %callMultisig
-                                (pair (pair %entrypoint_signature
-                                         (pair (string %name) (bytes %params))
-                                         (address %source_contract))
-                                      (lambda %callback unit (list operation))) ;
-                              IF_NONE
-                                { SWAP ; DIG 2 ; DROP 2 ; PUSH string "no call entrypoint" ; FAILWITH }
-                                { DUP 4 ;
-                                  PACK ;
-                                  SHA256 ;
-                                  SELF_ADDRESS ;
-                                  SWAP ;
-                                  PUSH string "updateRoyaltiesAddress" ;
-                                  PAIR ;
-                                  PAIR ;
-                                  SWAP ;
-                                  PUSH mutez 0 ;
-                                  LAMBDA
-                                    (pair (pair address address) unit)
-                                    (list operation)
-                                    { UNPAIR ;
-                                      UNPAIR ;
-                                      DIG 2 ;
-                                      DROP ;
-                                      CONTRACT %updateRoyaltiesAddress address ;
-                                      IF_NONE
-                                        { DROP ; PUSH string "no updateRoyaltiesAddress entrypoint" ; FAILWITH }
-                                        { NIL operation ; SWAP ; PUSH mutez 0 ; DIG 3 ; TRANSFER_TOKENS ; CONS } } ;
-                                  DUP 7 ;
-                                  DUP 7 ;
-                                  PAIR ;
-                                  APPLY ;
-                                  DIG 5 ;
-                                  DIG 6 ;
-                                  DROP 2 ;
-                                  DIG 3 ;
-                                  PAIR ;
-                                  TRANSFER_TOKENS ;
-                                  NIL operation ;
-                                  SWAP ;
-                                  CONS } }
-                            { UPDATE 3 ; NIL operation } } ;
-                     PAIR }
+                         IF { DROP 2 ; PUSH string "not admin" ; FAILWITH }
+                            { UPDATE 3 ; NIL operation ; PAIR } } }
                    { IF_LEFT
                        { DUP 2 ;
                          GET 19 ;
@@ -3398,53 +2948,8 @@
                          SENDER ;
                          COMPARE ;
                          NEQ ;
-                         IF { SELF_ADDRESS ;
-                              DUP 3 ;
-                              DIG 3 ;
-                              GET 27 ;
-                              CONTRACT %callMultisig
-                                (pair (pair %entrypoint_signature
-                                         (pair (string %name) (bytes %params))
-                                         (address %source_contract))
-                                      (lambda %callback unit (list operation))) ;
-                              IF_NONE
-                                { SWAP ; DIG 2 ; DROP 2 ; PUSH string "no call entrypoint" ; FAILWITH }
-                                { DUP 4 ;
-                                  PACK ;
-                                  SHA256 ;
-                                  SELF_ADDRESS ;
-                                  SWAP ;
-                                  PUSH string "updateTreasuryAddress" ;
-                                  PAIR ;
-                                  PAIR ;
-                                  SWAP ;
-                                  PUSH mutez 0 ;
-                                  LAMBDA
-                                    (pair (pair address address) unit)
-                                    (list operation)
-                                    { UNPAIR ;
-                                      UNPAIR ;
-                                      DIG 2 ;
-                                      DROP ;
-                                      CONTRACT %updateTreasuryAddress address ;
-                                      IF_NONE
-                                        { DROP ; PUSH string "no updateTreasuryAddress entrypoint" ; FAILWITH }
-                                        { NIL operation ; SWAP ; PUSH mutez 0 ; DIG 3 ; TRANSFER_TOKENS ; CONS } } ;
-                                  DUP 7 ;
-                                  DUP 7 ;
-                                  PAIR ;
-                                  APPLY ;
-                                  DIG 5 ;
-                                  DIG 6 ;
-                                  DROP 2 ;
-                                  DIG 3 ;
-                                  PAIR ;
-                                  TRANSFER_TOKENS ;
-                                  NIL operation ;
-                                  SWAP ;
-                                  CONS } }
-                            { UPDATE 29 ; NIL operation } ;
-                         PAIR } } }
+                         IF { DROP 2 ; PUSH string "not admin" ; FAILWITH }
+                            { UPDATE 29 ; NIL operation ; PAIR } } } }
                { IF_LEFT
                    { DUP ;
                      GET 4 ;

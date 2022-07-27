@@ -1,6 +1,8 @@
 #if !SWAP_INTERFACE 
 #define SWAP_INTERFACE 
 
+type token_id = nat
+
 type buy_param = 
 [@layout:comb] 
 { 

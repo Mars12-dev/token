@@ -156,11 +156,18 @@ let update_proxy (action, storage : update_proxy_param * storage) : return =
   else
     ([] : operation list), { storage with proxy = Set.remove p storage.proxy }
 
-let mint (param, storage : nft_mint_param * storage) : storage =
+let mint (param, storage : nft_mint_param * storage) : return =
   if storage.paused then 
-    (failwith (error_FA2_CONTRACT_IS_PAUSED) : storage) 
-  else if Set.mem (Tezos.get_sender ()) storage.proxy = false then
-    failwith error_ONLY_PROXY_CAN_CALL_THIS_ENTRYPOINT
+    (failwith (error_FA2_CONTRACT_IS_PAUSED) : return) 
+  else if (Tezos.get_sender ()) <> storage.multisig then
+  let sender_address = Tezos.get_self_address () in
+        let func () =
+      match (Tezos.get_entrypoint_opt "%mint" sender_address : nft_mint_param contract option) with
+        | None -> (failwith("no mint entrypoint") : operation list)
+        | Some mint_entrypoint ->
+          [Tezos.transaction param 0mutez mint_entrypoint]
+      in
+      (prepare_multisig "mint" param func storage), storage
   else
     (* MINT TOKEN *)
     let { token_id;
@@ -184,7 +191,7 @@ let mint (param, storage : nft_mint_param * storage) : storage =
       (Some nft_metadata)
       storage.token_metadata
     in
-    { storage with ledger = new_ledger ; token_metadata = new_token_metadata }
+    ([] : operation list), { storage with ledger = new_ledger ; token_metadata = new_token_metadata }
 
 let update_metadata (param : nft_update_metadata_param) (store : storage) : return =
   if store.paused then 
@@ -207,8 +214,7 @@ let main (param, storage : fa2_entry_points * storage) : return =
   match param with
   | UpdateProxy action ->
       update_proxy (action, storage)
-  | Mint param ->
-    (([] : operation list), mint (param, storage))
+  | Mint param -> mint (param, storage)
   | Transfer txs ->
     if storage.paused then 
       (failwith (error_FA2_CONTRACT_IS_PAUSED) : return) 

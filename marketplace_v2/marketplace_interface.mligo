@@ -79,7 +79,8 @@ type storage =
   allowed_tokens : (token_symbol, fun_token) big_map;
   available_pairs : ((token_symbol * token_symbol), string) big_map;
   oracle : address;
-  multisig : address;
+  admin : address;
+  // multisig : address;
   treasury : address;
   oracle_tolerance : int;
 } 
@@ -215,7 +216,8 @@ type parameter =
 | UpdateRoyaltiesAddress of update_royalties_address_param
 | UpdateTreasuryAddress of update_treasury_address_param
 | SetOracleTolerance of set_oracle_tolerance_param
-| UpdateMultisig of update_multisig_param
+| UpdateAdmin of address
+// | UpdateMultisig of update_multisig_param
 | AddToMarketplace of add_to_marketplace_param 
 | RemoveFromMarketplace of remove_from_marketplace_param 
 | Collect of collect_marketplace_param

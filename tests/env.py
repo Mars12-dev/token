@@ -6,7 +6,7 @@ from pytezos.contract.result import OperationResult
 
 
 class Keys:
-    def __init__(self, shell="http://localhost:20000"):
+    def __init__(self, shell="https://rpc.ghostnet.teztnets.xyz/"):
         self.ALICE_KEY = "edsk3EQB2zJvvGrMKzkUxhgERsy6qdDDw19TQyFWkYNUmGSxXiYm7Q"
         self.ALICE_PK = "tz1Yigc57GHQixFwDEVzj5N1znSCU3aq15td"
         self.BOB_KEY = "edsk4YDWx5QixxHtEfp5gKuYDd1AZLFqQhmquFgz64mDXghYYzW6T9"
@@ -33,6 +33,19 @@ class MultisigStorage:
     admins: str = admin
 
 
+@ dataclass
+class MarketplaceStorage:
+    multisig: str
+    treasury: str = default_keys.ALICE_PK
+    nft_address: str = default_keys.ALICE_PK
+    royalties_address: str = default_keys.ALICE_PK
+    oracle: str = default_keys.ALICE_PK
+    xtz_address: str = default_keys.ALICE_PK
+    usd_address: str = default_keys.ALICE_PK
+    atf_address: str = default_keys.ALICE_PK
+    oracle_tolerance: int = 900
+
+
 ALICE_PK = default_keys.ALICE_PK
 ALICE_KEY = default_keys.ALICE_KEY
 BOB_PK = default_keys.BOB_PK
@@ -40,7 +53,7 @@ BOB_PK = default_keys.BOB_PK
 alice_pytezos = default_keys.alice_pytezos
 bob_pytezos = default_keys.bob_pytezos
 
-send_conf = dict(min_confirmations=2)
+send_conf = dict(min_confirmations=3)
 
 
 class Env:
@@ -176,6 +189,8 @@ class Env:
             "token_price": 1000000,
             "admin": admin,
             "paused": False,
+            "currency": "XTZ",
+            "factor_decimals": 1000000,
         }
 
         opg = swap.originate(initial_storage=storage).send(**send_conf)
@@ -185,3 +200,73 @@ class Env:
             **self.alice_using_params).contract(swap_addr)
 
         return swap
+
+    def deploy_nft(self, marketplace: str = ALICE_PK, multisig: str = ALICE_PK):
+        with open("../michelson/nft.tz", encoding="UTF-8") as mich_file:
+            michelson = mich_file.read()
+        nft = ContractInterface.from_michelson(
+            michelson).using(**self.alice_using_params)
+        storage = {
+            "ledger": {},
+            "operators": {},
+            "metadata": {},
+            "token_metadata": {},
+            "proxy": {marketplace},
+            "paused": False,
+            "multisig": multisig,
+        }
+        opg = nft.originate(initial_storage=storage).send(**send_conf)
+        nft_addr = OperationResult.from_operation_group(
+            opg.opg_result)[0].originated_contracts[0]
+        nft = alice_pytezos.contract(nft_addr)
+
+        return nft
+
+    def deploy_marketplace(self, init_storage: MarketplaceStorage):
+        with open("../michelson/marketplace.tz", encoding="UTF-8") as mich_file:
+            michelson = mich_file.read()
+        marketplace = ContractInterface.from_michelson(
+            michelson).using(**self.alice_using_params)
+        storage = {
+            "collections": [],
+            "royalties_address": ALICE_PK,
+            "next_swap_id": 0,
+            "tokens": {},
+            "counter_offers": {},
+            "swaps": {},
+            "offers": {},
+            "royalties_rate": 300,
+            "management_fee_rate": 300,
+            "paused": False,
+            "allowed_tokens": {
+                "XTZ": {
+                    "token_symbol": "XTZ",
+                    "fa_address": init_storage.xtz_address,
+                    "fa_type": "XTZ"
+                },
+                "USD": {
+                    "token_symbol": "USD",
+                    "fa_address": init_storage.usd_address,
+                    "fa_type": "fa1.2"
+                },
+                "EURL": {
+                    "token_symbol": "ATF",
+                    "fa_address": init_storage.atf_address,
+                    "fa_type": "fa1.2"
+                }
+            },
+            "available_pairs": {
+                ("XTZ", "USD"): "XTZ-USD",
+            },
+            "oracle": init_storage.oracle,
+            "admin": init_storage.multisig,
+            "treasury": init_storage.treasury,
+            "oracle_tolerance": init_storage.oracle_tolerance,
+        }
+
+        opg = marketplace.originate(initial_storage=storage).send(**send_conf)
+        marketplace_addr = OperationResult.from_operation_group(
+            opg.opg_result)[0].originated_contracts[0]
+        marketplace = alice_pytezos.contract(marketplace_addr)
+
+        return marketplace

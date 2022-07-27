@@ -129,6 +129,7 @@ type royalties_info =
 }
 
 type entrypoint_signature =
+[@layout:comb]
 {
     name : string;
     params : bytes;

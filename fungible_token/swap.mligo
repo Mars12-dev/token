@@ -102,7 +102,7 @@ let main (action, store : parameter * storage) : return =
  | SetTokenIn p -> set_token_in p store
  | SetTokenOut p -> set_token_out p store
  | SetTreasury p -> set_treasury p store
- | SetTokenPrice p -> set_token_price  p store
+ | SetTokenPrice p -> set_token_price p store
  | Buy p -> buy p store
 
 

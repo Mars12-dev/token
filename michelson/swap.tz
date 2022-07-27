@@ -1,7 +1,7 @@
 { parameter
     (or (or (or (pair %buy (address %address_to) (nat %amount)) (bool %setPause))
             (or (address %setTokenIn) (address %setTokenOut)))
-        (address %setTreasury)) ;
+        (or (nat %setTokenPrice) (address %setTreasury))) ;
   storage
     (pair (address %token_in_address)
           (address %token_out_address)
@@ -90,11 +90,19 @@
                         { DIG 2 ; DROP ; UPDATE 3 ; NIL operation ; PAIR } } } }
            { DIG 2 ;
              DROP ;
-             DUP 2 ;
-             GET 9 ;
-             SENDER ;
-             COMPARE ;
-             NEQ ;
-             IF { DROP 2 ; FAILWITH }
-                { DIG 2 ; DROP ; UPDATE 5 ; NIL operation ; PAIR } } } }
+             IF_LEFT
+               { DUP 2 ;
+                 GET 9 ;
+                 SENDER ;
+                 COMPARE ;
+                 NEQ ;
+                 IF { DROP 2 ; FAILWITH }
+                    { DIG 2 ; DROP ; UPDATE 7 ; NIL operation ; PAIR } }
+               { DUP 2 ;
+                 GET 9 ;
+                 SENDER ;
+                 COMPARE ;
+                 NEQ ;
+                 IF { DROP 2 ; FAILWITH }
+                    { DIG 2 ; DROP ; UPDATE 5 ; NIL operation ; PAIR } } } } }
 

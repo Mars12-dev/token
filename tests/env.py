@@ -34,6 +34,7 @@ class MultisigStorage:
 
 
 ALICE_PK = default_keys.ALICE_PK
+ALICE_KEY = default_keys.ALICE_KEY
 BOB_PK = default_keys.BOB_PK
 
 alice_pytezos = default_keys.alice_pytezos
@@ -72,7 +73,7 @@ class Env:
 
     def deploy_atf(self):
 
-        total_supply = 1_000_000_000 * 10 ** 5
+        total_supply = 2 * 10 ** 6 * 10 ** 5
 
         with open("../michelson/atf.tz", "r", encoding="UTF8") as file:
             michelson = file.read()
@@ -89,7 +90,7 @@ class Env:
         storage = {
             "paused": False,
             "burn_paused": False,
-            "ledger": {admin: total_supply},
+            "ledger": {admin: total_supply // 2, ALICE_PK: total_supply // 2},
             "allowances": {},
             "total_supply": total_supply,
             "metadata": {
@@ -119,3 +120,68 @@ class Env:
             **self.alice_using_params).contract(atf_addr)
 
         return atf
+
+    def deploy_action(self):
+        total_supply = 10 ** 6 * 10 ** 5
+
+        with open("../michelson/action.tz", encoding="UTF-8") as mich_file:
+            michelson = mich_file.read()
+        action = ContractInterface.from_michelson(
+            michelson).using(**self.alice_using_params)
+        multisig = self.deploy_multisig()
+        storage = {
+            "paused": False,
+            "burn_paused": False,
+            "ledger": {admin: total_supply},
+            "allowances": {},
+            "total_supply": total_supply,
+            "metadata": {
+                "": "tezos-storage:content".encode().hex(),
+                "content": json.dumps({
+                    "name": "ACT",
+                    "authors": ["atfMI <hello@atfmi.com>"],
+                    "version": "1.0.0",
+                    "homepage": "https://atfmi.com/",
+                    "interfaces": ["TZIP-007", "TZIP-016"],
+                    "symbol": "atf",
+                    "icon": " ",
+                    "decimals": "5",
+                    "shouldPreferSymbol": "true"
+                }).encode().hex()
+            },
+            "token_metadata": {},
+            "multisig": multisig.address,
+        }
+
+        opg = action.originate(initial_storage=storage).send(**send_conf)
+        action_addr = OperationResult.from_operation_group(opg.opg_result)[
+            0
+        ].originated_contracts[0]
+        multisig.addAuthorizedContract(action_addr).send(**send_conf)
+        multisig.removeAdmin(ALICE_PK)
+        action = alice_pytezos.using(
+            **self.alice_using_params).contract(action_addr)
+
+        return action
+
+    def deploy_swap(self, token_in: str, token_out: str, treasury: str, admin: str):
+        with open("../michelson/swap.tz", encoding="UTF-8") as mich_file:
+            michelson = mich_file.read()
+        swap = ContractInterface.from_michelson(
+            michelson).using(**self.alice_using_params)
+        storage = {
+            "token_in_address": token_in,
+            "token_out_address": token_out,
+            "treasury": treasury,
+            "token_price": 1000000,
+            "admin": admin,
+            "paused": False,
+        }
+
+        opg = swap.originate(initial_storage=storage).send(**send_conf)
+        swap_addr = OperationResult.from_operation_group(
+            opg.opg_result)[0].originated_contracts[0]
+        swap = alice_pytezos.using(
+            **self.alice_using_params).contract(swap_addr)
+
+        return swap

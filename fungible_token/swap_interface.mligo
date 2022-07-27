@@ -51,6 +51,7 @@ type parameter =
 | SetTokenIn of address
 | SetTokenOut of address
 | SetTreasury of address
+| SetTokenPrice of nat
 | Buy of buy_param
 
 type return = operation list * storage 

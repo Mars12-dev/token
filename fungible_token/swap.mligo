@@ -63,6 +63,12 @@ let set_token_price (param : nat) (store : storage) : return =
   else
     ([] : operation list), {store with token_price = param}
 
+let set_currency (param : string) (store : storage) : return =
+  if (Tezos.get_sender()) <> store.admin then
+       (failwith(error_CALLER_IS_NOT_ADMIN) : return)
+  else
+    ([] : operation list), {store with currency = param}
+
 
 let buy(param : buy_param) (store : storage) : return =
   if store.paused then
@@ -92,7 +98,8 @@ let buy(param : buy_param) (store : storage) : return =
             }
           ] :: ops 
         in
-  let ops = fa12_transfer store.token_out_address (Tezos.get_self_address ()) (Tezos.get_sender()) (param.amount * store.factor_decimals / store.token_price)  :: ops in
+ 
+  let ops = fa12_transfer store.token_out_address (Tezos.get_self_address ()) (param.address_to) (param.amount * store.factor_decimals / store.token_price)  :: ops in
 
 (ops, store)
 
@@ -103,6 +110,7 @@ let main (action, store : parameter * storage) : return =
  | SetTokenOut p -> set_token_out p store
  | SetTreasury p -> set_treasury p store
  | SetTokenPrice p -> set_token_price p store
+ | SetCurrency p -> set_currency p store
  | Buy p -> buy p store
 
 

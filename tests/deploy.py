@@ -1,21 +1,23 @@
 from env import Env, ALICE_PK, ALICE_KEY, admin, alice_pytezos, MarketplaceStorage
 
 
-SHELL = "https://rpc.ghostnet.teztnets.xyz/"
+SHELL = "https://rpc.tzkt.io/ghostnet/"
 
 
 send_conf = dict(min_confirmations=3)
 
 print("Deploying contract...")
 
-atf_addr = "KT1LqLtQsGy96SQwRERhYP4XuukF9L2tEpNT"
-atf = alice_pytezos.contract(atf_addr)
+# atf_addr = "KT1LqLtQsGy96SQwRERhYP4XuukF9L2tEpNT"
+# atf = alice_pytezos.contract(atf_addr)
+atf = Env(SHELL).deploy_atf()
 eurl_addr = "KT1RVK54ne4gFfqyMwGD6zZk4crFkf1TD1kn"
 eurl = alice_pytezos.contract(eurl_addr)
-action_addr = "KT1Nngvd6ouvEj6aFegQ37U9Kukr4mAYEXRK"
-action = alice_pytezos.contract(action_addr)
-# swap = Env(SHELL).deploy_swap(token_in=eurl.address,
-#                               token_out=atf.address, treasury=admin, admin=admin)
+# action_addr = "KT1Nngvd6ouvEj6aFegQ37U9Kukr4mAYEXRK"
+# action = alice_pytezos.contract(action_addr)
+action = Env(SHELL).deploy_action()
+swap = Env(SHELL).deploy_swap(token_in=eurl.address,
+                              token_out=atf.address, treasury=admin, admin=admin)
 
 
 param_metadata = {
@@ -33,7 +35,7 @@ multisig = alice_pytezos.using(
 
 marketplace_storage = MarketplaceStorage(multisig=ALICE_PK)
 
-marketplace_storage.atf_address = atf_addr
+marketplace_storage.atf_address = atf.address
 
 marketplace = Env(SHELL).deploy_marketplace(marketplace_storage)
 nft = Env(SHELL).deploy_nft(marketplace=marketplace.address,

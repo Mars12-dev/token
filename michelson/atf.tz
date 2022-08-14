@@ -888,5 +888,16 @@
                       SWAP ;
                       DROP ;
                       NIL operation ;
-                      PAIR } } } } }
+                      PAIR } } } } ;
+  view "get_balance_view"
+       address
+       nat
+       { UNPAIR ;
+         SWAP ;
+         CAR ;
+         CDR ;
+         CAR ;
+         SWAP ;
+         GET ;
+         IF_NONE { PUSH nat 0 } {} } }
 

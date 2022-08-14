@@ -500,5 +500,16 @@
                      DROP ;
                      UPDATE 3 ;
                      NIL operation ;
-                     PAIR } } } } }
+                     PAIR } } } } ;
+  view "get_balance_view"
+       (pair address nat)
+       nat
+       { UNPAIR ;
+         UNPAIR ;
+         DIG 2 ;
+         CAR ;
+         DUG 2 ;
+         PAIR ;
+         GET ;
+         IF_NONE { PUSH nat 0 } {} } }
 

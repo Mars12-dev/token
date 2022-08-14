@@ -7,6 +7,7 @@ types of NFTs. Each NFT type is represented by the range of token IDs - `token_d
 #include "./fa2_errors.mligo"
 #include "./fa2_interface.mligo"
 #include "./fa2_operator_lib.mligo"
+#include "views/balance_of_view.mligo"
 
 
 type storage = nft_storage

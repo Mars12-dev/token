@@ -6,7 +6,7 @@ from pytezos.contract.result import OperationResult
 
 
 class Keys:
-    def __init__(self, shell="https://rpc.ghostnet.teztnets.xyz/"):
+    def __init__(self, shell="https://rpc.tzkt.io/ghostnet/"):
         self.ALICE_KEY = "edsk3EQB2zJvvGrMKzkUxhgERsy6qdDDw19TQyFWkYNUmGSxXiYm7Q"
         self.ALICE_PK = "tz1Yigc57GHQixFwDEVzj5N1znSCU3aq15td"
         self.BOB_KEY = "edsk4YDWx5QixxHtEfp5gKuYDd1AZLFqQhmquFgz64mDXghYYzW6T9"

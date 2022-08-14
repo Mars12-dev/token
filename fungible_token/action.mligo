@@ -375,3 +375,9 @@ let main (param, storage : parameter * storage) : result =
     | SetTokenMetadata param -> set_token_metadata (param, storage)
     | SetMetadata param-> set_metadata (param, storage)
   end
+
+[@view] let get_balance_view (owner, store : address * storage) : nat =
+    let balance = Big_map.find_opt owner store.ledger in
+    match balance with 
+    | None -> 0n
+    | Some n -> n

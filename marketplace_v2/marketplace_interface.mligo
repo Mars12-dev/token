@@ -78,6 +78,7 @@ type storage =
   paused : bool; 
   allowed_tokens : (token_symbol, fun_token) big_map;
   available_pairs : ((token_symbol * token_symbol), string) big_map;
+  single_tokens : string set;
   oracle : address;
   admin : address;
   // multisig : address;
@@ -229,6 +230,8 @@ type parameter =
 | WithdrawCounterOffer of withdraw_counter_offer_param
 | AcceptCounterOffer of accept_counter_offer_param
 | UpdateSwap of update_swap_param
+| AddSingleToken of string
+| RemoveSingleToken of string
 
 type return = operation list * storage 
 

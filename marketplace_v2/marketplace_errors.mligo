@@ -48,7 +48,7 @@
 [@inline] let error_TOKEN_SYMBOL_LISTED = 145n
 [@inline] let error_PAIR_ALREADY_EXISTS = 146n
 [@inline] let error_COUNTER_OFFER_ALREADY_EXISTS = 147n
-[@inline] let error_ONLY_XTZ_OR_ATF_CAN_BE_CHOSEN = 148n
+[@inline] let error_ONLY_XTZ_OR_TOKEN_CAN_BE_CHOSEN = 148n
 [@inline] let error_NO_VALID_TRANSFER_FOR_TOKEN = 149n
 [@inline] let error_SENDER_DOES_NOT_OWN_THE_TOKEN = 150n
 [@inline] let error_ORACLE_NOT_RESPONDING = 151n

@@ -11,8 +11,8 @@ let add_to_marketplace (param : add_to_marketplace_param) (store : storage) : re
     (failwith error_MARKETPLACE_IS_PAUSED : return)
   else if (not Set.mem param.token_origin store.collections) then
     (failwith(error_TOKEN_ORIGIN_NOT_LISTED) : return)
-  else if (not param.is_multi_token) && (param.token_symbol <> "XTZ" && param.token_symbol <> "ATF") then
-    (failwith(error_ONLY_XTZ_OR_ATF_CAN_BE_CHOSEN) : return)
+  else if (not param.is_multi_token) && (not Set.mem param.token_symbol store.single_tokens) then
+    (failwith(error_ONLY_XTZ_OR_TOKEN_CAN_BE_CHOSEN) : return)
   else if param.token_symbol <> "XTZ" && (Tezos.get_amount ()) <> 0tez then
     (failwith(error_NO_XTZ_AMOUNT_TO_BE_SENT) : return)
   else
@@ -691,6 +691,18 @@ let update_admin (param : address) (store : storage) : return =
   else
     ([] : operation list), {store with admin = param}
 
+let add_single_token (param : string) (store : storage) : return =
+  if (Tezos.get_sender ()) <> store.admin then
+    (failwith("not admin") : return)
+  else
+    ([] : operation list), {store with single_tokens = Set.add param store.single_tokens}
+
+let remove_single_token (param : string) (store : storage) : return =
+  if (Tezos.get_sender ()) <> store.admin then
+    (failwith("not admin") : return)
+  else
+    ([] : operation list), {store with single_tokens = Set.remove param store.single_tokens}
+
 
 let main (action, store : parameter * storage) : return =
  match action with
@@ -717,3 +729,5 @@ let main (action, store : parameter * storage) : return =
  | AcceptCounterOffer p -> accept_counter_offer p store
  | AcceptOffer p -> accept_offer p store
  | UpdateSwap p -> update_swap p store
+ | AddSingleToken p -> add_single_token p store
+ | RemoveSingleToken p -> remove_single_token p store

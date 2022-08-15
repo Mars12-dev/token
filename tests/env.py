@@ -43,6 +43,8 @@ class MarketplaceStorage:
     xtz_address: str = default_keys.ALICE_PK
     usd_address: str = default_keys.ALICE_PK
     atf_address: str = default_keys.ALICE_PK
+    ap_address: str = default_keys.ALICE_PK
+    eurl_address: str = default_keys.ALICE_PK
     oracle_tolerance: int = 900
 
 
@@ -249,11 +251,21 @@ class Env:
                     "fa_address": init_storage.usd_address,
                     "fa_type": "fa1.2"
                 },
-                "EURL": {
+                "ATF": {
                     "token_symbol": "ATF",
                     "fa_address": init_storage.atf_address,
                     "fa_type": "fa1.2"
-                }
+                },
+                "AP": {
+                    "token_symbol": "AP",
+                    "fa_address": init_storage.ap_address,
+                    "fa_type": "fa1.2"
+                },
+                "EURL": {
+                    "token_symbol": "EURL",
+                    "fa_address": init_storage.eurl_address,
+                    "fa_type": "fa2"
+                },
             },
             "available_pairs": {
                 ("XTZ", "USD"): "XTZ-USD",
@@ -262,6 +274,7 @@ class Env:
             "admin": init_storage.multisig,
             "treasury": init_storage.treasury,
             "oracle_tolerance": init_storage.oracle_tolerance,
+            "single_tokens": ["XTZ", "ATF", "AP"],
         }
 
         opg = marketplace.originate(initial_storage=storage).send(**send_conf)

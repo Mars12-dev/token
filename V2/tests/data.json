@@ -1,0 +1,217 @@
+{
+    "assetCodes": [
+        "BAT-USDC",
+        "BTC-USD",
+        "COMP-USD",
+        "DAI-USDC",
+        "ETH-USD",
+        "KNC-USD",
+        "LINK-USD",
+        "REP-USD",
+        "XTZ-USD",
+        "ZRX-USD",
+        "USD_XTZ"
+    ],
+    "assetMap": {
+        "ETH-USD": {
+            "computedPrice": 3359118769,
+            "lastUpdateTime": "2022-01-13T11:00:00Z",
+            "prices": {
+                "first": 5848,
+                "last": 5853,
+                "saved": {
+                },
+                "sum": 779505062480151727
+            },
+            "volumes": {
+                "first": 5848,
+                "last": 5853,
+                "saved": {
+                },
+                "sum": 232056416
+            }
+        },
+        "DAI-USDC": {
+            "computedPrice": 1000000,
+            "lastUpdateTime": "2022-01-13T10:54:00Z",
+            "prices": {
+                "first": 1131,
+                "last": 1136,
+                "saved": {
+                },
+                "sum": 120259912646950
+            },
+            "volumes": {
+                "first": 1131,
+                "last": 1136,
+                "saved": {
+                },
+                "sum": 120259810
+            }
+        },
+        "XTZ-USD": {
+            "computedPrice": 4379915,
+            "lastUpdateTime": "2022-01-13T11:00:00Z",
+            "prices": {
+                "first": 5812,
+                "last": 5817,
+                "saved": {
+                },
+                "sum": 71153612938180000
+            },
+            "volumes": {
+                "first": 5812,
+                "last": 5817,
+                "saved": {
+                },
+                "sum": 16245430000
+            }
+        },
+        "ZRX-USD": {
+            "computedPrice": 779895,
+            "lastUpdateTime": "2022-01-13T11:00:00Z",
+            "prices": {
+                "first": 5581,
+                "last": 5586,
+                "saved": {
+                },
+                "sum": 17112461041061670
+            },
+            "volumes": {
+                "first": 5581,
+                "last": 5586,
+                "saved": {
+                },
+                "sum": 21941981870
+            }
+        },
+        "LINK-USD": {
+            "computedPrice": 26304872,
+            "lastUpdateTime": "2022-01-13T11:00:00Z",
+            "prices": {
+                "first": 5839,
+                "last": 5844,
+                "saved": {
+                },
+                "sum": 107176307495610000
+            },
+            "volumes": {
+                "first": 5839,
+                "last": 5844,
+                "saved": {
+                },
+                "sum": 4074390000
+            }
+        },
+        "BTC-USD": {
+            "computedPrice": 43817536420,
+            "lastUpdateTime": "2022-01-13T11:00:00Z",
+            "prices": {
+                "first": 5847,
+                "last": 5852,
+                "saved": {
+                },
+                "sum": 1691414920249718549
+            },
+            "volumes": {
+                "first": 5847,
+                "last": 5852,
+                "saved": {
+                },
+                "sum": 38601324
+            }
+        },
+        "REP-USD": {
+            "computedPrice": 16853848,
+            "lastUpdateTime": "2022-01-13T11:00:00Z",
+            "prices": {
+                "first": 2233,
+                "last": 2238,
+                "saved": {
+                },
+                "sum": 307720552622158
+            },
+            "volumes": {
+                "first": 2233,
+                "last": 2238,
+                "saved": {
+                },
+                "sum": 18258177
+            }
+        },
+        "BAT-USDC": {
+            "computedPrice": 1109568,
+            "lastUpdateTime": "2022-01-13T10:56:00Z",
+            "prices": {
+                "first": 3822,
+                "last": 3827,
+                "saved": {
+                },
+                "sum": 2285710800000000
+            },
+            "volumes": {
+                "first": 3822,
+                "last": 3827,
+                "saved": {
+                },
+                "sum": 2060000000
+            }
+        },
+        "COMP-USD": {
+            "computedPrice": 197560757,
+            "lastUpdateTime": "2022-01-13T11:00:00Z",
+            "prices": {
+                "first": 5548,
+                "last": 5553,
+                "saved": {
+                },
+                "sum": 16542947602872000
+            },
+            "volumes": {
+                "first": 5548,
+                "last": 5553,
+                "saved": {
+                },
+                "sum": 83736000
+            }
+        },
+        "KNC-USD": {
+            "computedPrice": 1433218,
+            "lastUpdateTime": "2022-01-13T10:58:00Z",
+            "prices": {
+                "first": 3139,
+                "last": 4144,
+                "saved": {
+                },
+                "sum": 1991457304800000
+            },
+            "volumes": {
+                "first": 3139,
+                "last": 4144,
+                "saved": {
+                },
+                "sum": 1389500000
+            }
+        },
+        "USD_XTZ": {
+            "computedPrice": 229610,
+            "lastUpdateTime": "2022-01-13T10:58:00Z",
+            "prices": {
+                "first": 3139,
+                "last": 4144,
+                "saved": {
+                },
+                "sum": 1991457304800000
+            },
+            "volumes": {
+                "first": 3139,
+                "last": 4144,
+                "saved": {
+                },
+                "sum": 1389500000
+            }
+        }
+    },
+    "numDataPoints": 6,
+    "oracleContract": "KT19yapgDLPR3CuvK32xJHgxNJigyNxjSr4y"
+}

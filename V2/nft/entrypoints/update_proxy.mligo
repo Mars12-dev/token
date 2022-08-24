@@ -1,6 +1,14 @@
 let update_proxy (action, storage : update_proxy_param * storage) : operation list * storage =
-  if (Tezos.get_sender ()) <> storage.manager then
-    (failwith(error_ONLY_MANAGER_CONTRACT_CAN_CALL) : operation list * storage)
+  let sender_address = (Tezos.get_self_address ()) in
+  if (Tezos.get_sender ()) <> storage.multisig then
+      let func () =
+      match (Tezos.get_entrypoint_opt "%updateProxy" sender_address : update_proxy_param  contract option) with
+        | None -> (failwith error_NO_UPDATE_PROXY_ENTRYPOINT : operation list)
+        | Some update_proxy_entrypoint ->
+          [Tezos.transaction param 0mutez update_proxy_entrypoint]
+      in
+      (prepare_multisig "updateProxy" param func storage), storage
+
   else
     match action with
     | Add_proxy p -> 

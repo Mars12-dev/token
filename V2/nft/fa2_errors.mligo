@@ -55,9 +55,8 @@ let fa2_sender_hook_undefined = "FA2_SENDER_HOOK_UNDEFINED"
 [@inline] let error_ADDRESS_NOT_PROXY = 7n
 [@inline] let error_FA2_CONTRACT_IS_PAUSED = 8n
 [@inline] let error_ONLY_MANAGER_CONTRACT_CAN_CALL = 9n
-[@inline] let error_NO_SET_BURN_PAUSE_ENTRYPOINT= 10n
-
-
+[@inline] let error_NO_SET_BURN_PAUSE_ENTRYPOINT = 10n
+[@inline] let error_NO_UPDATE_PROXY_ENTRYPOINT = 11n
 
 
 #endif

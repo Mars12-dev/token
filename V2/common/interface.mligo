@@ -75,7 +75,6 @@ type nft_storage =
   paused : bool;
   burn_paused : bool;
   multisig : address;
-  manager : address;
   nft_type : nft_type;
 }
 

@@ -49,7 +49,6 @@ type storage =
   nft_address : address; 
   royalties_address : address;
   next_token_id : token_id; 
-  next_swap_id : swap_id; 
   tokens : ((token_id * address), swap_id) big_map;
   counter_offers : (counter_offer_id, counter_offer) big_map; 
   swaps : (swap_id, swap_info) big_map; 

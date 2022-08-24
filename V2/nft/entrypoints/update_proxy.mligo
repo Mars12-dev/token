@@ -5,9 +5,9 @@ let update_proxy (action, storage : update_proxy_param * storage) : operation li
       match (Tezos.get_entrypoint_opt "%updateProxy" sender_address : update_proxy_param  contract option) with
         | None -> (failwith error_NO_UPDATE_PROXY_ENTRYPOINT : operation list)
         | Some update_proxy_entrypoint ->
-          [Tezos.transaction param 0mutez update_proxy_entrypoint]
+          [Tezos.transaction action 0mutez update_proxy_entrypoint]
       in
-      (prepare_multisig "updateProxy" param func storage), storage
+      (prepare_multisig "updateProxy" action func storage), storage
 
   else
     match action with

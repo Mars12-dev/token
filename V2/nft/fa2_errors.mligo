@@ -57,6 +57,10 @@ let fa2_sender_hook_undefined = "FA2_SENDER_HOOK_UNDEFINED"
 [@inline] let error_ONLY_MANAGER_CONTRACT_CAN_CALL = 9n
 [@inline] let error_NO_SET_BURN_PAUSE_ENTRYPOINT = 10n
 [@inline] let error_NO_UPDATE_PROXY_ENTRYPOINT = 11n
+[@inline] let error_FA2_BURN_IS_PAUSED = 12n
+[@inline] let error_UNAUTHORIZED_CONTRACT_ADDRESS = 13n
+[@inline] let error_TOKEN_METADATA_ITEM_DOES_NOT_EXIST = 14n
+
 
 
 #endif

@@ -7,19 +7,19 @@ let burn (param, storage : nft_burn_param * storage) : storage =
     (* BURN TOKEN *)
     let {
         token_id;
-        from_ ;
-        amount;
+        from_;
+        amount_;
       } = param in
-    let tokens = Big_map.find_opt (from_ , token_id) ll storage.ledger in
+    let tokens = Big_map.find_opt (from_ , token_id) storage.ledger in
     match tokens with 
-    | None -> (failwith fa2_token_undefined : ledger)
+    | None -> (failwith fa2_token_undefined : storage)
     | Some t ->
-      if t < amount
-      then (failwith fa2_insufficient_balance : ledger)
+      if t < amount_
+      then (failwith fa2_insufficient_balance : storage)
       else 
-         let new_from_amount = abs(t - amount) in
+         let new_from_amount = abs(t - amount_) in
          let new_ledger = 
-                  if amount = 0n then 
+                  if amount_ = 0n then 
                     storage.ledger
                   else 
                     Big_map.update (from_, token_id) (Some new_from_amount) storage.ledger in

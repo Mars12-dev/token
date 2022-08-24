@@ -23,31 +23,14 @@ type offer_info =
     token_symbol : token_symbol;
 } 
 
-type swap_info = 
-[@layout:comb] 
-{ 
-  owner : address; 
-  token_id : token_id; 
-  is_dutch : bool;
-  is_reserved : bool;
-  starting_price : nat;
-  token_price : nat; 
-  start_time : timestamp; 
-  duration : int;
-  end_time : timestamp; 
-  token_amount : nat; 
-  origin : address;
-  recipient : address;
-  ft_symbol : token_symbol;
-  accepted_tokens : token_symbol set;
-  is_multi_token : bool;
-} 
+
 
 type storage = 
 [@layout:comb] 
 { 
   nft_address : address; 
   royalties_address : address;
+  next_swap_id : swap_id; 
   next_token_id : token_id; 
   tokens : ((token_id * address), swap_id) big_map;
   counter_offers : (counter_offer_id, counter_offer) big_map; 
@@ -203,6 +186,10 @@ type parameter =
 | WithdrawCounterOffer of withdraw_counter_offer_param
 | AcceptCounterOffer of accept_counter_offer_param
 | UpdateSwap of update_swap_param
+| AddSingleToken of string
+| RemoveSingleToken of string
+| UpdateMultisigAddress of address
+
 
 type return = operation list * storage 
 

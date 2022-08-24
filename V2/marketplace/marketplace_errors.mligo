@@ -49,5 +49,6 @@
 [@inline] let error_PAIR_ALREADY_EXISTS = 146n
 [@inline] let error_COUNTER_OFFER_ALREADY_EXISTS = 147n
 [@inline] let error_NOT_REQUIRED_TOKEN = 148n
+[@inline] let error_ONLY_XTZ_OR_TOKEN_CAN_BE_CHOSEN = 149n
 
 #endif

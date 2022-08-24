@@ -65,16 +65,13 @@ type token_metadata_param =
 
 type update_multisig_address_param = address
 
-type metadata_updater = token_metadata -> token_metadata
-type update_metadata_with_function_param = {
-  token_id: token_id;
-  metadata_updater: metadata_updater;
-}
+
 
 
 type fa2_entry_points =
   | UpdateProxy of update_proxy_param
   | Mint of nft_mint_param
+  | Burn of nft_burn_param
   | Transfer of transfer list
   | Balance_of of balance_of_param
   | Update_operators of update_operator list

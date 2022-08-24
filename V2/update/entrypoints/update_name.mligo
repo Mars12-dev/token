@@ -4,7 +4,7 @@ let update_name (param : update_name_param) (store: storage) : return =
     else
         let balance_of_request = {
           token_id = param.token_id;
-          owner = Tezos.sender;
+          owner = (Tezos.get_sender ());
         } in
         match (Tezos.call_view "get_balance_view" balance_of_request param.nft_address : nat option) with
           | None -> (failwith error_VIEW_RETURNED_AN_ERROR : return)
@@ -13,7 +13,7 @@ let update_name (param : update_name_param) (store: storage) : return =
               (failwith "You do not own this token" : return)
             else
               let metadata_updater (token_metadata : token_metadata): token_metadata =
-                Big_map.update "name" (Some param.new_name) token_metadata
+                Map.update "name" (Some param.new_name) token_metadata
               in
               let update_param = {
                 token_id = param.token_id;

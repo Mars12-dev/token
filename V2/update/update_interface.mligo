@@ -30,6 +30,7 @@ type attributes_from_param_param =
   e: string;
   f: string;
   g: string;
+  h: string;
 }
 type update_param_inner =
 {
@@ -49,8 +50,8 @@ type set_ipfs_hashes_param =
 { nft_address: address;
   ipfs_hashes: string;
 }
-type add_update_admin_param = address;
-type remove_update_admin_param = address;
+type add_update_admin_param = address
+type remove_update_admin_param = address
 
 type merge_asset_avatar_param =
 [@layout:comb]
@@ -71,14 +72,13 @@ type batch_update_name_param = update_name_param list
 
 type update_description_param =
 [@layout:comb]
-{ nft_address: address 
+{ nft_address: address;
   token_id: token_id;
   new_description: bytes;
 }
 type batch_update_description_param = update_description_param list
 
 
-type return = operation list * storage
 
 (* storage types *)
 type storage =
@@ -90,11 +90,11 @@ type storage =
   ipfs_hashes: (address, string) big_map;
 }
 
+type return = operation list * storage
 
 type parameter =
 | AddUpdateAdmin of add_update_admin_param
 | BatchRemoveUpdateAttribute of batch_remove_attribute_param 
-| BatchUpdateAttribute of batch_update_attribute_param
 | BatchUpdateDescription of batch_update_description_param
 | BatchUpdateName of batch_update_name_param
 | MergeAssetToAvatar of merge_asset_avatar_param

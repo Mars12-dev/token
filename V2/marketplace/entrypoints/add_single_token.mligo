@@ -1,4 +1,4 @@
-#include "../common/functions.mligo"
+#include "../../common/functions.mligo"
 
 [@inline]
 let add_single_token (param : string) (store : storage) : return =

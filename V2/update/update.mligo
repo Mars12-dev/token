@@ -1,8 +1,8 @@
+#include "update_errors.mligo"
 #include "../common/const.mligo"
 #include "../common/interface.mligo"
-#include "../common/fucntions.mligo"
-#include "update_errors.mligo"
 #include "update_interface.mligo"
+#include "../common/functions.mligo"
 #include "update_functions.mligo"
 #include "entrypoints/add_update_admin.mligo"
 #include "entrypoints/batch_remove_update_attribute.mligo"
@@ -30,5 +30,3 @@ match action with
 | SetIpfsHashes p -> set_ipfs_hashes p store
 | UpdateMetadata p -> update_metadata p store
 | SetPause p -> set_pause p store
-| BatchUpdateAttribute p -> batch_update_attribute p store
-

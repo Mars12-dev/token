@@ -45,7 +45,6 @@ let prepare_multisig (type p) (entrypoint_name: string) (param: p) (func: unit -
 #include "entrypoints/update_token_metadata.mligo"
 #include "entrypoints/update_metadata_with_function.mligo"
 #include "entrypoints/update_multisig_address.mligo"
-#include "entrypoints/update_operators.mligo"
 #include "entrypoints/update_proxy.mligo"
 
 
@@ -76,5 +75,5 @@ let main (param, storage : fa2_entry_points * storage) : return =
   | SetBurnPause p -> set_burn_pause p storage 
   | UpdateMultisig p -> update_multisig_address p storage
   | UpdateTokenMetadata p -> update_token_metadata p storage
-  | UpdateMetadataWithFunction p -> update_metadata_with_function p storage
   | UpdateContractMetadata p -> update_contract_metadata p storage
+  | UpdateMetadataWithFunction p -> update_metadata_with_function p storage

@@ -1,0 +1,792 @@
+{ parameter
+    (or (or (or (or (address %addUpdateAdmin)
+                    (list %batchRemoveUpdateAttribute
+                       (pair (address %nft_address) (string %key) (nat %token_id))))
+                (or (list %batchUpdateAttribute
+                       (pair (address %nft_address)
+                             (string %type_)
+                             (string %key)
+                             (nat %token_id)
+                             (string %value)))
+                    (list %batchUpdateDescription
+                       (pair (address %nft_address) (nat %token_id) (bytes %new_description)))))
+            (or (or (list %batchUpdateName
+                       (pair (address %nft_address) (nat %token_id) (bytes %new_name)))
+                    (pair %mergeAssetToAvatar
+                       (address %asset_address)
+                       (address %avatar_address)
+                       (nat %asset_id)
+                       (nat %avatar_id)))
+                (or (address %removeUpdateAdmin)
+                    (pair %setIpfsHashes (string %ipfs_hashes) (address %nft_address)))))
+        (or (bool %setPause)
+            (pair %updateMetadata
+               (pair (pair %metadata
+                        (pair (pair (bytes %artifactUri)
+                                    (pair %attributes
+                                       (pair (pair (string %a) (string %b)) (string %c) (string %d))
+                                       (pair (string %e) (string %f))
+                                       (string %g)
+                                       (string %h)))
+                              (bytes %displayUri)
+                              (bytes %formats))
+                        (bytes %thumbnailUri))
+                     (address %nft_address))
+               (nat %token_id)))) ;
+  storage
+    (pair (bool %paused)
+          (address %multisig)
+          (set %update_admins address)
+          (big_map %ipfs_hashes address string)) ;
+  code { UNPAIR ;
+         IF_LEFT
+           { IF_LEFT
+               { IF_LEFT
+                   { IF_LEFT
+                       { DUP 2 ;
+                         GET 3 ;
+                         SENDER ;
+                         COMPARE ;
+                         NEQ ;
+                         IF { SELF_ADDRESS ;
+                              DUP 3 ;
+                              DIG 3 ;
+                              GET 3 ;
+                              CONTRACT %callMultisig
+                                (pair (pair %entrypoint_signature
+                                         (pair (string %name) (bytes %params))
+                                         (address %source_contract))
+                                      (lambda %callback unit (list operation))) ;
+                              IF_NONE
+                                { SWAP ; DIG 2 ; DROP 2 ; PUSH string "no call entrypoint" ; FAILWITH }
+                                { DUP 4 ;
+                                  PACK ;
+                                  SHA256 ;
+                                  SELF_ADDRESS ;
+                                  SWAP ;
+                                  PUSH string "addUpdateAdmin" ;
+                                  PAIR ;
+                                  PAIR ;
+                                  SWAP ;
+                                  PUSH mutez 0 ;
+                                  LAMBDA
+                                    (pair (pair address address) unit)
+                                    (list operation)
+                                    { UNPAIR ;
+                                      UNPAIR ;
+                                      DIG 2 ;
+                                      DROP ;
+                                      CONTRACT %addUpdateAdmin address ;
+                                      IF_NONE
+                                        { DROP ; PUSH nat 500 ; FAILWITH }
+                                        { NIL operation ; SWAP ; PUSH mutez 0 ; DIG 3 ; TRANSFER_TOKENS ; CONS } } ;
+                                  DUP 7 ;
+                                  DUP 7 ;
+                                  PAIR ;
+                                  APPLY ;
+                                  DIG 5 ;
+                                  DIG 6 ;
+                                  DROP 2 ;
+                                  DIG 3 ;
+                                  PAIR ;
+                                  TRANSFER_TOKENS ;
+                                  NIL operation ;
+                                  SWAP ;
+                                  CONS } }
+                            { DUP 2 ;
+                              DIG 2 ;
+                              GET 5 ;
+                              DIG 2 ;
+                              PUSH bool True ;
+                              SWAP ;
+                              UPDATE ;
+                              UPDATE 5 ;
+                              NIL operation } }
+                       { DUP 2 ;
+                         GET 3 ;
+                         SENDER ;
+                         COMPARE ;
+                         NEQ ;
+                         IF { SELF_ADDRESS ;
+                              DUP 3 ;
+                              DIG 3 ;
+                              GET 3 ;
+                              CONTRACT %callMultisig
+                                (pair (pair %entrypoint_signature
+                                         (pair (string %name) (bytes %params))
+                                         (address %source_contract))
+                                      (lambda %callback unit (list operation))) ;
+                              IF_NONE
+                                { SWAP ; DIG 2 ; DROP 2 ; PUSH string "no call entrypoint" ; FAILWITH }
+                                { DUP 4 ;
+                                  PACK ;
+                                  SHA256 ;
+                                  SELF_ADDRESS ;
+                                  SWAP ;
+                                  PUSH string "batchRemoveAttribute" ;
+                                  PAIR ;
+                                  PAIR ;
+                                  SWAP ;
+                                  PUSH mutez 0 ;
+                                  LAMBDA
+                                    (pair (pair address (list (pair address string nat))) unit)
+                                    (list operation)
+                                    { UNPAIR ;
+                                      UNPAIR ;
+                                      DIG 2 ;
+                                      DROP ;
+                                      CONTRACT %batchRemoveAttribute
+                                        (list (pair (address %nft_address) (string %key) (nat %token_id))) ;
+                                      IF_NONE
+                                        { DROP ; PUSH nat 501 ; FAILWITH }
+                                        { NIL operation ; SWAP ; PUSH mutez 0 ; DIG 3 ; TRANSFER_TOKENS ; CONS } } ;
+                                  DUP 7 ;
+                                  DUP 7 ;
+                                  PAIR ;
+                                  APPLY ;
+                                  DIG 5 ;
+                                  DIG 6 ;
+                                  DROP 2 ;
+                                  DIG 3 ;
+                                  PAIR ;
+                                  TRANSFER_TOKENS ;
+                                  NIL operation ;
+                                  SWAP ;
+                                  CONS } }
+                            { NIL operation ;
+                              SWAP ;
+                              ITER { SWAP ;
+                                     DUP 2 ;
+                                     CAR ;
+                                     CONTRACT %updateMetadataWithFunction
+                                       (pair (lambda %metadata_updater (map string bytes) (map string bytes)) (nat %token_id)) ;
+                                     IF_NONE
+                                       { SWAP ; DROP ; PUSH nat 515 ; FAILWITH }
+                                       { PUSH mutez 0 ;
+                                         DUP 4 ;
+                                         GET 4 ;
+                                         LAMBDA
+                                           (pair (pair address string nat) (map string bytes))
+                                           (map string bytes)
+                                           { UNPAIR ;
+                                             SWAP ;
+                                             DUP ;
+                                             PUSH string "attributes" ;
+                                             GET ;
+                                             IF_NONE { PUSH string "Attributes does not exist" ; FAILWITH } {} ;
+                                             UNPACK (map string (pair (option string) string)) ;
+                                             IF_NONE { PUSH nat 503 ; FAILWITH } {} ;
+                                             DIG 2 ;
+                                             GET 3 ;
+                                             NONE (pair (option string) string) ;
+                                             SWAP ;
+                                             UPDATE ;
+                                             PACK ;
+                                             SOME ;
+                                             PUSH string "attributes" ;
+                                             PAIR 3 ;
+                                             UNPAIR 3 ;
+                                             UPDATE } ;
+                                         DUP 6 ;
+                                         APPLY ;
+                                         DIG 5 ;
+                                         DROP ;
+                                         PAIR ;
+                                         TRANSFER_TOKENS } ;
+                                     CONS } } } ;
+                     PAIR }
+                   { IF_LEFT
+                       { DUP 2 ;
+                         GET 3 ;
+                         SENDER ;
+                         COMPARE ;
+                         NEQ ;
+                         IF { SELF_ADDRESS ;
+                              DUP 3 ;
+                              DIG 3 ;
+                              GET 3 ;
+                              CONTRACT %callMultisig
+                                (pair (pair %entrypoint_signature
+                                         (pair (string %name) (bytes %params))
+                                         (address %source_contract))
+                                      (lambda %callback unit (list operation))) ;
+                              IF_NONE
+                                { SWAP ; DIG 2 ; DROP 2 ; PUSH string "no call entrypoint" ; FAILWITH }
+                                { DUP 4 ;
+                                  PACK ;
+                                  SHA256 ;
+                                  SELF_ADDRESS ;
+                                  SWAP ;
+                                  PUSH string "batchUpdateAttribute" ;
+                                  PAIR ;
+                                  PAIR ;
+                                  SWAP ;
+                                  PUSH mutez 0 ;
+                                  LAMBDA
+                                    (pair (pair address (list (pair address string string nat string))) unit)
+                                    (list operation)
+                                    { UNPAIR ;
+                                      UNPAIR ;
+                                      DIG 2 ;
+                                      DROP ;
+                                      CONTRACT %batchUpdateAttribute
+                                        (list (pair (address %nft_address)
+                                                    (string %type_)
+                                                    (string %key)
+                                                    (nat %token_id)
+                                                    (string %value))) ;
+                                      IF_NONE
+                                        { DROP ; PUSH nat 504 ; FAILWITH }
+                                        { NIL operation ; SWAP ; PUSH mutez 0 ; DIG 3 ; TRANSFER_TOKENS ; CONS } } ;
+                                  DUP 7 ;
+                                  DUP 7 ;
+                                  PAIR ;
+                                  APPLY ;
+                                  DIG 5 ;
+                                  DIG 6 ;
+                                  DROP 2 ;
+                                  DIG 3 ;
+                                  PAIR ;
+                                  TRANSFER_TOKENS ;
+                                  NIL operation ;
+                                  SWAP ;
+                                  CONS } }
+                            { NIL operation ;
+                              SWAP ;
+                              ITER { SWAP ;
+                                     DUP 2 ;
+                                     CAR ;
+                                     CONTRACT %updateMetadataWithFunction
+                                       (pair (lambda %metadata_updater (map string bytes) (map string bytes)) (nat %token_id)) ;
+                                     IF_NONE
+                                       { SWAP ; DROP ; PUSH nat 515 ; FAILWITH }
+                                       { PUSH mutez 0 ;
+                                         DUP 4 ;
+                                         GET 7 ;
+                                         LAMBDA
+                                           (pair (pair address string string nat string) (map string bytes))
+                                           (map string bytes)
+                                           { UNPAIR ;
+                                             SWAP ;
+                                             DUP ;
+                                             PUSH string "attributes" ;
+                                             GET ;
+                                             IF_NONE { PUSH nat 502 ; FAILWITH } {} ;
+                                             UNPACK (map string (pair (option string) string)) ;
+                                             IF_NONE { PUSH nat 503 ; FAILWITH } {} ;
+                                             PUSH nat 0 ;
+                                             DUP 4 ;
+                                             GET 3 ;
+                                             SIZE ;
+                                             COMPARE ;
+                                             GT ;
+                                             DIG 2 ;
+                                             SWAP ;
+                                             IF { SWAP ;
+                                                  DUP 3 ;
+                                                  GET 8 ;
+                                                  DUP 4 ;
+                                                  GET 3 ;
+                                                  SOME ;
+                                                  PAIR ;
+                                                  SOME ;
+                                                  DIG 3 ;
+                                                  GET 5 ;
+                                                  UPDATE }
+                                                { SWAP ;
+                                                  DUP 3 ;
+                                                  GET 8 ;
+                                                  NONE string ;
+                                                  PAIR ;
+                                                  SOME ;
+                                                  DIG 3 ;
+                                                  GET 5 ;
+                                                  UPDATE } ;
+                                             PACK ;
+                                             SOME ;
+                                             PUSH string "attributes" ;
+                                             PAIR 3 ;
+                                             UNPAIR 3 ;
+                                             UPDATE } ;
+                                         DUP 6 ;
+                                         APPLY ;
+                                         DIG 5 ;
+                                         DROP ;
+                                         PAIR ;
+                                         TRANSFER_TOKENS } ;
+                                     CONS } } ;
+                         PAIR }
+                       { DUP 2 ;
+                         GET 5 ;
+                         SENDER ;
+                         MEM ;
+                         NOT ;
+                         IF { DROP 2 ; PUSH nat 505 ; FAILWITH }
+                            { NIL operation ;
+                              SWAP ;
+                              ITER { SWAP ;
+                                     DUP 2 ;
+                                     CAR ;
+                                     CONTRACT %updateMetadataWithFunction
+                                       (pair (lambda %metadata_updater (map string bytes) (map string bytes)) (nat %token_id)) ;
+                                     IF_NONE
+                                       { SWAP ; DROP ; PUSH nat 515 ; FAILWITH }
+                                       { PUSH mutez 0 ;
+                                         DUP 4 ;
+                                         GET 3 ;
+                                         LAMBDA
+                                           (pair (pair address nat bytes) (map string bytes))
+                                           (map string bytes)
+                                           { UNPAIR ; GET 4 ; SOME ; PUSH string "description" ; UPDATE } ;
+                                         DUP 6 ;
+                                         APPLY ;
+                                         DIG 5 ;
+                                         DROP ;
+                                         PAIR ;
+                                         TRANSFER_TOKENS } ;
+                                     CONS } ;
+                              PAIR } } } }
+               { IF_LEFT
+                   { IF_LEFT
+                       { DUP 2 ;
+                         GET 5 ;
+                         SENDER ;
+                         MEM ;
+                         NOT ;
+                         IF { DROP 2 ; PUSH nat 505 ; FAILWITH }
+                            { NIL operation ;
+                              SWAP ;
+                              ITER { SWAP ;
+                                     DUP 2 ;
+                                     CAR ;
+                                     CONTRACT %updateMetadataWithFunction
+                                       (pair (lambda %metadata_updater (map string bytes) (map string bytes)) (nat %token_id)) ;
+                                     IF_NONE
+                                       { SWAP ; DROP ; PUSH nat 515 ; FAILWITH }
+                                       { PUSH mutez 0 ;
+                                         DUP 4 ;
+                                         GET 3 ;
+                                         LAMBDA
+                                           (pair (pair address nat bytes) (map string bytes))
+                                           (map string bytes)
+                                           { UNPAIR ; GET 4 ; SOME ; PUSH string "name" ; UPDATE } ;
+                                         DUP 6 ;
+                                         APPLY ;
+                                         DIG 5 ;
+                                         DROP ;
+                                         PAIR ;
+                                         TRANSFER_TOKENS } ;
+                                     CONS } ;
+                              PAIR } }
+                       { DUP ;
+                         GET 6 ;
+                         SENDER ;
+                         PAIR ;
+                         DUP 2 ;
+                         GET 3 ;
+                         SWAP ;
+                         VIEW "get_balance_view" nat ;
+                         IF_NONE { PUSH string "View returned an error" ; FAILWITH } {} ;
+                         DUP 2 ;
+                         GET 5 ;
+                         SENDER ;
+                         PAIR ;
+                         DUP 3 ;
+                         CAR ;
+                         SWAP ;
+                         VIEW "get_balance_view" nat ;
+                         IF_NONE { PUSH string "View returned an error" ; FAILWITH } {} ;
+                         PUSH nat 0 ;
+                         SWAP ;
+                         COMPARE ;
+                         EQ ;
+                         PUSH nat 0 ;
+                         DIG 2 ;
+                         COMPARE ;
+                         EQ ;
+                         OR ;
+                         IF { DROP 2 ; PUSH nat 516 ; FAILWITH }
+                            { PUSH nat 1 ;
+                              SENDER ;
+                              DUP 3 ;
+                              GET 5 ;
+                              PAIR 3 ;
+                              NIL operation ;
+                              DUP 3 ;
+                              CAR ;
+                              CONTRACT %burn (pair (nat %token_id) (address %from_) (nat %amount_)) ;
+                              IF_NONE { PUSH nat 514 ; FAILWITH } {} ;
+                              PUSH mutez 0 ;
+                              DIG 3 ;
+                              TRANSFER_TOKENS ;
+                              CONS ;
+                              DUP 2 ;
+                              CAR ;
+                              UNIT ;
+                              VIEW "get_nft_type" string ;
+                              IF_NONE { PUSH nat 506 ; FAILWITH } {} ;
+                              SWAP ;
+                              DUP 3 ;
+                              GET 3 ;
+                              CONTRACT %updateMetadataWithFunction
+                                (pair (lambda %metadata_updater (map string bytes) (map string bytes)) (nat %token_id)) ;
+                              IF_NONE
+                                { SWAP ; DIG 2 ; DROP 2 ; PUSH nat 515 ; FAILWITH }
+                                { PUSH mutez 0 ;
+                                  DIG 4 ;
+                                  GET 6 ;
+                                  LAMBDA
+                                    (pair string (map string bytes))
+                                    (map string bytes)
+                                    { UNPAIR ;
+                                      SWAP ;
+                                      PUSH string "True" ;
+                                      PACK ;
+                                      SOME ;
+                                      DIG 2 ;
+                                      PAIR 3 ;
+                                      UNPAIR 3 ;
+                                      UPDATE } ;
+                                  DUP 6 ;
+                                  APPLY ;
+                                  DIG 5 ;
+                                  DROP ;
+                                  PAIR ;
+                                  TRANSFER_TOKENS } ;
+                              CONS ;
+                              PAIR } } }
+                   { IF_LEFT
+                       { DUP 2 ;
+                         GET 3 ;
+                         SENDER ;
+                         COMPARE ;
+                         NEQ ;
+                         IF { SELF_ADDRESS ;
+                              DUP 3 ;
+                              DIG 3 ;
+                              GET 3 ;
+                              CONTRACT %callMultisig
+                                (pair (pair %entrypoint_signature
+                                         (pair (string %name) (bytes %params))
+                                         (address %source_contract))
+                                      (lambda %callback unit (list operation))) ;
+                              IF_NONE
+                                { SWAP ; DIG 2 ; DROP 2 ; PUSH string "no call entrypoint" ; FAILWITH }
+                                { DUP 4 ;
+                                  PACK ;
+                                  SHA256 ;
+                                  SELF_ADDRESS ;
+                                  SWAP ;
+                                  PUSH string "removeUpdateAdmin" ;
+                                  PAIR ;
+                                  PAIR ;
+                                  SWAP ;
+                                  PUSH mutez 0 ;
+                                  LAMBDA
+                                    (pair (pair address address) unit)
+                                    (list operation)
+                                    { UNPAIR ;
+                                      UNPAIR ;
+                                      DIG 2 ;
+                                      DROP ;
+                                      CONTRACT %removeUpdateAdmin address ;
+                                      IF_NONE
+                                        { DROP ; PUSH nat 507 ; FAILWITH }
+                                        { NIL operation ; SWAP ; PUSH mutez 0 ; DIG 3 ; TRANSFER_TOKENS ; CONS } } ;
+                                  DUP 7 ;
+                                  DUP 7 ;
+                                  PAIR ;
+                                  APPLY ;
+                                  DIG 5 ;
+                                  DIG 6 ;
+                                  DROP 2 ;
+                                  DIG 3 ;
+                                  PAIR ;
+                                  TRANSFER_TOKENS ;
+                                  NIL operation ;
+                                  SWAP ;
+                                  CONS } }
+                            { DUP 2 ;
+                              DIG 2 ;
+                              GET 5 ;
+                              DIG 2 ;
+                              PUSH bool False ;
+                              SWAP ;
+                              UPDATE ;
+                              UPDATE 5 ;
+                              NIL operation } }
+                       { DUP 2 ;
+                         GET 3 ;
+                         SENDER ;
+                         COMPARE ;
+                         NEQ ;
+                         IF { SELF_ADDRESS ;
+                              DUP 3 ;
+                              DIG 3 ;
+                              GET 3 ;
+                              CONTRACT %callMultisig
+                                (pair (pair %entrypoint_signature
+                                         (pair (string %name) (bytes %params))
+                                         (address %source_contract))
+                                      (lambda %callback unit (list operation))) ;
+                              IF_NONE
+                                { SWAP ; DIG 2 ; DROP 2 ; PUSH string "no call entrypoint" ; FAILWITH }
+                                { DUP 4 ;
+                                  PACK ;
+                                  SHA256 ;
+                                  SELF_ADDRESS ;
+                                  SWAP ;
+                                  PUSH string "setIpfsHashes" ;
+                                  PAIR ;
+                                  PAIR ;
+                                  SWAP ;
+                                  PUSH mutez 0 ;
+                                  LAMBDA
+                                    (pair (pair address (pair string address)) unit)
+                                    (list operation)
+                                    { UNPAIR ;
+                                      UNPAIR ;
+                                      DIG 2 ;
+                                      DROP ;
+                                      CONTRACT %setIpfsHashes (pair (string %ipfs_hashes) (address %nft_address)) ;
+                                      IF_NONE
+                                        { DROP ; PUSH nat 508 ; FAILWITH }
+                                        { NIL operation ; SWAP ; PUSH mutez 0 ; DIG 3 ; TRANSFER_TOKENS ; CONS } } ;
+                                  DUP 7 ;
+                                  DUP 7 ;
+                                  PAIR ;
+                                  APPLY ;
+                                  DIG 5 ;
+                                  DIG 6 ;
+                                  DROP 2 ;
+                                  DIG 3 ;
+                                  PAIR ;
+                                  TRANSFER_TOKENS ;
+                                  NIL operation ;
+                                  SWAP ;
+                                  CONS } }
+                            { DUP 2 ;
+                              DIG 2 ;
+                              GET 6 ;
+                              DUP 3 ;
+                              CAR ;
+                              SOME ;
+                              DIG 3 ;
+                              CDR ;
+                              UPDATE ;
+                              UPDATE 6 ;
+                              NIL operation } } ;
+                     PAIR } } }
+           { IF_LEFT
+               { SELF_ADDRESS ;
+                 DUP 3 ;
+                 GET 3 ;
+                 SENDER ;
+                 COMPARE ;
+                 NEQ ;
+                 IF { DUP 3 ;
+                      DIG 3 ;
+                      GET 3 ;
+                      CONTRACT %callMultisig
+                        (pair (pair %entrypoint_signature
+                                 (pair (string %name) (bytes %params))
+                                 (address %source_contract))
+                              (lambda %callback unit (list operation))) ;
+                      IF_NONE
+                        { SWAP ; DIG 2 ; DROP 2 ; PUSH string "no call entrypoint" ; FAILWITH }
+                        { DUP 4 ;
+                          PACK ;
+                          SHA256 ;
+                          SELF_ADDRESS ;
+                          SWAP ;
+                          PUSH string "setPause" ;
+                          PAIR ;
+                          PAIR ;
+                          SWAP ;
+                          PUSH mutez 0 ;
+                          LAMBDA
+                            (pair (pair address bool) unit)
+                            (list operation)
+                            { UNPAIR ;
+                              UNPAIR ;
+                              DIG 2 ;
+                              DROP ;
+                              CONTRACT %setPause bool ;
+                              IF_NONE
+                                { DROP ; PUSH string "no setPause entrypoint" ; FAILWITH }
+                                { NIL operation ; SWAP ; PUSH mutez 0 ; DIG 3 ; TRANSFER_TOKENS ; CONS } } ;
+                          DUP 7 ;
+                          DUP 7 ;
+                          PAIR ;
+                          APPLY ;
+                          DIG 5 ;
+                          DIG 6 ;
+                          DROP 2 ;
+                          DIG 3 ;
+                          PAIR ;
+                          TRANSFER_TOKENS ;
+                          NIL operation ;
+                          SWAP ;
+                          CONS } }
+                    { DROP ; UPDATE 1 ; NIL operation } ;
+                 PAIR }
+               { DUP 2 ;
+                 GET 5 ;
+                 SENDER ;
+                 MEM ;
+                 NOT ;
+                 IF { DROP 2 ; PUSH nat 505 ; FAILWITH }
+                    { DUP ;
+                      CAR ;
+                      CDR ;
+                      CONTRACT %updateMetadataWithFunction
+                        (pair (lambda %metadata_updater (map string bytes) (map string bytes)) (nat %token_id)) ;
+                      IF_NONE
+                        { DROP ; PUSH nat 515 ; FAILWITH }
+                        { PUSH mutez 0 ;
+                          DUP 3 ;
+                          CDR ;
+                          LAMBDA
+                            (pair (pair (pair (pair (pair (pair bytes
+                                                                (pair (pair (pair string string) string string) (pair string string) string string))
+                                                          bytes
+                                                          bytes)
+                                                    bytes)
+                                              address)
+                                        nat)
+                                  (map string bytes))
+                            (map string bytes)
+                            { UNPAIR ;
+                              SWAP ;
+                              DUP 2 ;
+                              CAR ;
+                              CAR ;
+                              CAR ;
+                              CDR ;
+                              CDR ;
+                              SOME ;
+                              PUSH string "formats" ;
+                              UPDATE ;
+                              DUP 2 ;
+                              CAR ;
+                              CAR ;
+                              CAR ;
+                              CAR ;
+                              CAR ;
+                              SOME ;
+                              PUSH string "artifactUri" ;
+                              UPDATE ;
+                              DUP 2 ;
+                              CAR ;
+                              CAR ;
+                              CAR ;
+                              CDR ;
+                              CAR ;
+                              SOME ;
+                              PUSH string "displayUri" ;
+                              UPDATE ;
+                              DUP 2 ;
+                              CAR ;
+                              CAR ;
+                              CDR ;
+                              SOME ;
+                              PUSH string "thumbnailUri" ;
+                              UPDATE ;
+                              SWAP ;
+                              CAR ;
+                              CAR ;
+                              CAR ;
+                              CAR ;
+                              CDR ;
+                              EMPTY_MAP string (pair (option string) string) ;
+                              DUP 2 ;
+                              CDR ;
+                              CDR ;
+                              CDR ;
+                              PUSH string "Number" ;
+                              SOME ;
+                              PAIR ;
+                              SOME ;
+                              PUSH string "level" ;
+                              UPDATE ;
+                              DUP 2 ;
+                              CAR ;
+                              CAR ;
+                              CAR ;
+                              NONE string ;
+                              PAIR ;
+                              SOME ;
+                              PUSH string "campaign" ;
+                              UPDATE ;
+                              DUP 2 ;
+                              CDR ;
+                              CAR ;
+                              CAR ;
+                              NONE string ;
+                              PAIR ;
+                              SOME ;
+                              PUSH string "Mouth" ;
+                              UPDATE ;
+                              DUP 2 ;
+                              CDR ;
+                              CAR ;
+                              CDR ;
+                              NONE string ;
+                              PAIR ;
+                              SOME ;
+                              PUSH string "Legs" ;
+                              UPDATE ;
+                              DUP 2 ;
+                              CDR ;
+                              CDR ;
+                              CAR ;
+                              NONE string ;
+                              PAIR ;
+                              SOME ;
+                              PUSH string "Feet" ;
+                              UPDATE ;
+                              DUP 2 ;
+                              CAR ;
+                              CDR ;
+                              CDR ;
+                              NONE string ;
+                              PAIR ;
+                              SOME ;
+                              PUSH string "Eyes" ;
+                              UPDATE ;
+                              DUP 2 ;
+                              CAR ;
+                              CDR ;
+                              CAR ;
+                              NONE string ;
+                              PAIR ;
+                              SOME ;
+                              PUSH string "Eyebrows" ;
+                              UPDATE ;
+                              SWAP ;
+                              CAR ;
+                              CAR ;
+                              CDR ;
+                              NONE string ;
+                              PAIR ;
+                              SOME ;
+                              PUSH string "Chest" ;
+                              UPDATE ;
+                              PACK ;
+                              SOME ;
+                              PUSH string "attributes" ;
+                              PAIR 3 ;
+                              UNPAIR 3 ;
+                              UPDATE } ;
+                          DUP 5 ;
+                          APPLY ;
+                          DIG 4 ;
+                          DROP ;
+                          PAIR ;
+                          TRANSFER_TOKENS } ;
+                      SWAP ;
+                      NIL operation ;
+                      DIG 2 ;
+                      CONS ;
+                      PAIR } } } } }
+

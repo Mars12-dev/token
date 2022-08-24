@@ -58,7 +58,7 @@ let collect (param : collect_marketplace_param) (store : storage) : return =
           let converted_price =
             if (not swap.is_multi_token) then 
                 if(param.token_symbol <> swap.ft_symbol) then
-                  (failwith(error_NOT_REQUIRED_TOKEN) : return)
+                  (failwith(error_NOT_REQUIRED_TOKEN) : nat)
                 else 
                   price
             else  

@@ -1,6 +1,8 @@
 #if !COMMON_INTERFACE
 #define COMMON_INTERFACE
 
+
+
 type token_symbol = string
 
 type metadata_url = string
@@ -290,6 +292,33 @@ type crowdsale_storage =
     default_metadata : (string, bytes) map;
     sale_currency : token_type;
     earnings : nat;
+}
+
+type swap_info = 
+[@layout:comb] 
+{ 
+  owner : address; 
+  token_id : token_id; 
+  is_dutch : bool;
+  is_reserved : bool;
+  starting_price : nat;
+  token_price : nat; 
+  start_time : timestamp; 
+  duration : int;
+  end_time : timestamp; 
+  token_amount : nat; 
+  origin : address;
+  recipient : address;
+  accepted_tokens : token_symbol set;
+  ft_symbol : token_symbol;
+  is_multi_token : bool;
+} 
+
+type metadata_updater = token_metadata -> token_metadata
+
+type update_metadata_with_function_param = {
+  token_id: token_id;
+  metadata_updater: metadata_updater;
 }
 
 type admin_param = 

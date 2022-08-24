@@ -53,6 +53,7 @@ let accept_offer (param : accept_offer_param) (store : storage) : return =
               recipient = (Tezos.get_self_address ());
               accepted_tokens = (Set.empty : string set);
               ft_symbol = offer.token_symbol;
+              is_multi_token = false;
             }
             (* real swap *)
             | Some swap -> swap in

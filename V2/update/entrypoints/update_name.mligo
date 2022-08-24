@@ -1,15 +1,13 @@
 let update_name (param : update_name_param) (store: storage) : return =
-    if store.name_pause = true then
-      (failwith "Update name is paused" : return)
-    else if Bytes.length param.new_name > 30n || Bytes.length param.new_name < 1n then
-        (failwith "Name must be between 1 and 30 characters" : return)
+    if Bytes.length param.new_name > 30n || Bytes.length param.new_name < 1n then
+        (failwith error_NAME_MUST_BE_BETWEEN_1_AND_30_CHARACTERS : return)
     else
         let balance_of_request = {
           token_id = param.token_id;
           owner = Tezos.sender;
         } in
         match (Tezos.call_view "get_balance_view" balance_of_request param.nft_address : nat option) with
-          | None -> (failwith "View returned an error" : return)
+          | None -> (failwith error_VIEW_RETURNED_AN_ERROR : return)
           | Some user_balance ->
             if user_balance = 0n then
               (failwith "You do not own this token" : return)

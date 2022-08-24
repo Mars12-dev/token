@@ -79,6 +79,7 @@ type fa2_entry_points =
   | Balance_of of balance_of_param
   | Update_operators of update_operator list
   | SetPause of bool
+  | SetBurnPause of bool
   | UpdateMultisig of update_multisig_address_param
   | UpdateTokenMetadata of nft_update_metadata_param
   | UpdateContractMetadata of bytes

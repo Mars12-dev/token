@@ -4,7 +4,7 @@ let batch_update_attribute (param : batch_update_attribute_param) (store: storag
     let sender_address = Tezos.self_address in
     let func () =
       match (Tezos.get_entrypoint_opt "%batchUpdateAttribute" sender_address : batch_update_attribute_param contract option) with
-      | None -> (failwith("no batchUpdateAttribute entrypoint") : operation list)
+      | None -> (failwith error_NO_BATCH_UPDATE_ATTRIBUTE_ENTRYPOINT : operation list)
       | Some batch_update_attribute_entrypoint -> [Tezos.transaction param 0mutez batch_update_attribute_entrypoint] in
     (prepare_multisig "batchUpdateAttribute" param func store), store
   else
@@ -14,12 +14,12 @@ let batch_update_attribute (param : batch_update_attribute_param) (store: storag
         let attributes =
           match Big_map.find_opt "attributes" token_metadata with
           | Some attributes -> attributes
-          | None -> (failwith "Attributes does not exist" : bytes)
+          | None -> (failwith error_ATTRIBUTES_DOES_NOT_EXIST : bytes)
         in
         let unpacked_attributes =
           match (Bytes.unpack attributes : (string, (string option * string)) map option) with
           | Some unpacked_attributes -> unpacked_attributes
-          | None -> (failwith "Could not unpack attributes" : (string, (string option * string)) map)
+          | None -> (failwith error_COULD_NOT_UNPACK_ATTRIBUTES : (string, (string option * string)) map)
         in
         let new_attributes =
           if Bytes.length attribute_item.type_ > 0n then

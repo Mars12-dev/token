@@ -4,7 +4,7 @@ let batch_remove_attribute (param : batch_remove_attribute_param) (store: storag
     let sender_address = Tezos.self_address in
     let func () =
       match (Tezos.get_entrypoint_opt "%batchRemoveAttribute" sender_address : batch_remove_attribute_param contract option) with
-      | None -> (failwith("no batchRemoveAttribute entrypoint") : operation list)
+      | None -> (failwith error_NO_BATCH_REMOVE_ATTRIBUTE_ENTRYPOINT: operation list)
       | Some batch_remove_attribute_entrypoint -> [Tezos.transaction param 0mutez batch_remove_attribute_entrypoint] in
     (prepare_multisig "batchRemoveAttribute" param func store), store
   else
@@ -19,7 +19,7 @@ let batch_remove_attribute (param : batch_remove_attribute_param) (store: storag
         let unpacked_attributes =
           match (Bytes.unpack attributes : (string, (string option * string)) map option) with
           | Some unpacked_attributes -> unpacked_attributes
-          | None -> (failwith "Could not unpack attributes" : (string, (string option * string)) map)
+          | None -> (failwith error_COULD_NOT_UNPACK_ATTRIBUTES : (string, (string option * string)) map)
         in
         let new_attributes = Map.remove attribute_item.key unpacked_attributes
         in

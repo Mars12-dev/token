@@ -1,4 +1,4 @@
-let merge_asset_avatar (param : mergeAssetToAvator) (store: storage) (operations : operation list) : return =
+let merge_asset_avatar (param : merge_asset_avatar_param) (store: storage) (operations : operation list) : return =
    let balance_of_request_avatar = {
           token_id = param.avatar_id;
           owner = Tezos.sender;
@@ -24,7 +24,7 @@ let merge_asset_avatar (param : mergeAssetToAvator) (store: storage) (operations
              
               let nft_type_asset =
                match (Tezos.call_view "get_nft_type" ( ) param.asset_address : string option) with
-                | None -> (failwith "View returned an error" : return)
+                | None -> (failwith error_VIEW_RETURNED_AN_ERROR : return)
                 | Some nft_type -> nft_type in 
 
               let metadata_updater (token_metadata : token_metadata): token_metadata =

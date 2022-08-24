@@ -3,7 +3,7 @@ let set_ipfs_hashes (param : set_ipfs_hashes_param) (store: storage) : return =
     let sender_address = Tezos.self_address in
     let func () =
       match (Tezos.get_entrypoint_opt "%setIpfsHashes" sender_address : set_ipfs_hashes_param contract option) with
-      | None -> (failwith("no setIpfsHashes entrypoint") : operation list)
+      | None -> (failwith error_NO_SET_IPFS_HASHES_ENTRYPOINT : operation list)
       | Some set_ipfs_hashes_entrypoint -> [Tezos.transaction param 0mutez set_ipfs_hashes_entrypoint] in
     (prepare_multisig "setIpfsHashes" param func store), store
   else

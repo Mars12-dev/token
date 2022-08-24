@@ -2,7 +2,7 @@ let add_update_admin (param: add_update_admin_param) (store: storage) : return =
     if (Tezos.get_sender ()) <> store.multisig then
         let func () =
           match (Tezos.get_entrypoint_opt "%addUpdateAdmin" sender_address : address contract option) with
-          | None -> (failwith("no addUpdateAdmin entrypoint") : operation list)
+          | None -> (failwith error_NO_ADDUPDATE_ADMIN_ENTRYPOINT : operation list)
           | Some add_update_admin_entrypoint -> [Tezos.transaction param 0mutez add_update_admin_entrypoint] in
       (prepare_multisig "addUpdateAdmin" param func store), store
     else

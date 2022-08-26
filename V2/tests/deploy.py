@@ -18,7 +18,7 @@ action = alice_pytezos.contract(action_addr)
 # action = Env(SHELL).deploy_action()
 # swap = Env(SHELL).deploy_swap(token_in=eurl.address,
 #                               token_out=atf.address, treasury=admin, admin=admin)
-
+# multisig_addr = "KT1RTS228iromqZKk5PQqRzSdKughx9foujD"
 
 param_metadata = {
     "uri": "tezos-storage:content".encode().hex(),
@@ -33,21 +33,34 @@ multisig_addr = atf.storage["multisig"]()
 multisig = alice_pytezos.using(
     shell=SHELL, key=ALICE_KEY).contract(multisig_addr)
 
-marketplace_storage = MarketplaceStorage(multisig=ALICE_PK)
+
+marketplace_storage = MarketplaceStorage(admin=ALICE_PK)
+
 
 marketplace_storage.atf_address = atf.address
 marketplace_storage.ap_address = action.address
 marketplace_storage.eurl_address = eurl.address
 
 marketplace = Env(SHELL).deploy_marketplace(marketplace_storage)
-# nft = Env(SHELL).deploy_nft(marketplace=marketplace.address,
-#                             multisig=multisig.address)
-nft_addr = "KT1MoEUVGUVxmHC7YmyrzcPtoWDFXrQpVZLw"
-nft = alice_pytezos.contract(nft_addr)
+
+avatar = Env(SHELL).deploy_nft(nft_type="avatar",
+                               marketplace=marketplace.address, multisig=multisig.address)
+asset = Env(SHELL).deploy_nft(nft_type="asset",
+                              marketplace=marketplace.address, multisig=multisig.address)
+# nft_addr = "KT1MoEUVGUVxmHC7YmyrzcPtoWDFXrQpVZLw"
+# nft = alice_pytezos.contract(nft_addr)
 # multisig.addAuthorizedContract(marketplace.address).send(**send_conf)
+multisig.addAuthorizedContract(avatar.address).send(**send_conf)
+multisig.addAuthorizedContract(asset.address).send(**send_conf)
+# breakpoint()
 # multisig.addAuthorizedContract(nft.address).send(**send_conf)
-marketplace.addCollection(nft.address).send(**send_conf)
+marketplace.updateNftAddress(avatar.address).send(**send_conf)
 marketplace.updateAdmin(admin).send(**send_conf)
+
+update = Env(SHELL).deploy_update(multisig=multisig.address, admin=admin)
+
+multisig.addAuthorizedContract(update.address).send(**send_conf)
+
 
 # mint_param = {
 #     "token_id": 0,
@@ -68,5 +81,7 @@ print("\naction_addr = " + action.address + '"')
 print("\neurl_addr = " + eurl_addr + '"')
 # print("\nswap_addr = " + swap.address + '"')
 print("\nmarketplace_addr = " + marketplace.address + '"')
-print("\nnft_addr = " + nft.address + '"')
+print("\navatar_addr = " + avatar.address + '"')
+print("\nasset_addr = " + asset.address + '"')
+print("\nupdate_addr = " + update.address + '"')
 print("multisig_addr = " + multisig_addr + '"')

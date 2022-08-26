@@ -42,7 +42,7 @@ type storage =
   available_pairs : ((token_symbol * token_symbol), string) big_map;
   single_tokens : string set;
   oracle : address;
-  multisig : address;
+  admin : address;
   treasury : address;
 } 
 
@@ -167,7 +167,7 @@ type update_swap_param =
 }
 
 type parameter = 
-| SetPause of bool 
+// | SetPause of bool 
 | UpdateFee of update_fee_param 
 | UpdateRoyalties of update_royalties_param 
 | UpdateOracleAddress of address
@@ -188,7 +188,8 @@ type parameter =
 | UpdateSwap of update_swap_param
 | AddSingleToken of string
 | RemoveSingleToken of string
-| UpdateMultisigAddress of address
+| UpdateAdmin of address
+// | UpdateMultisigAddress of address
 
 
 type return = operation list * storage 

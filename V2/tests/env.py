@@ -35,7 +35,7 @@ class MultisigStorage:
 
 @ dataclass
 class MarketplaceStorage:
-    multisig: str
+    admin: str
     treasury: str = default_keys.ALICE_PK
     nft_address: str = default_keys.ALICE_PK
     royalties_address: str = default_keys.ALICE_PK
@@ -203,7 +203,7 @@ class Env:
 
         return swap
 
-    def deploy_nft(self, marketplace: str = ALICE_PK, multisig: str = ALICE_PK):
+    def deploy_nft(self, nft_type: str, marketplace: str = ALICE_PK, multisig: str = ALICE_PK):
         with open("../michelson/nft.tz", encoding="UTF-8") as mich_file:
             michelson = mich_file.read()
         nft = ContractInterface.from_michelson(
@@ -216,8 +216,8 @@ class Env:
             "proxy": {marketplace},
             "paused": False,
             "burn_paused": False,
-            "nft_type": "Avatar",
             "multisig": multisig,
+            "nft_type": nft_type,
         }
         opg = nft.originate(initial_storage=storage).send(**send_conf)
         nft_addr = OperationResult.from_operation_group(
@@ -232,51 +232,45 @@ class Env:
         marketplace = ContractInterface.from_michelson(
             michelson).using(**self.alice_using_params)
         storage = {
-            "collections": [],
+            "nft_address": ALICE_PK,
             "royalties_address": ALICE_PK,
             "next_swap_id": 0,
+            "next_token_id": 0,
             "tokens": {},
             "counter_offers": {},
             "swaps": {},
             "offers": {},
-            "royalties_rate": 300,
             "management_fee_rate": 300,
             "paused": False,
             "allowed_tokens": {
                 "XTZ": {
                     "token_symbol": "XTZ",
-                    "fa_address": init_storage.xtz_address,
-                    "fa_type": "XTZ"
+                    "fa12_address": init_storage.xtz_address,
                 },
                 "USD": {
                     "token_symbol": "USD",
-                    "fa_address": init_storage.usd_address,
-                    "fa_type": "fa1.2"
+                    "fa12_address": init_storage.usd_address,
                 },
                 "ATF": {
                     "token_symbol": "ATF",
-                    "fa_address": init_storage.atf_address,
-                    "fa_type": "fa1.2"
+                    "fa12_address": init_storage.atf_address,
                 },
                 "AP": {
                     "token_symbol": "AP",
-                    "fa_address": init_storage.ap_address,
-                    "fa_type": "fa1.2"
+                    "fa12_address": init_storage.ap_address,
                 },
                 "EURL": {
                     "token_symbol": "EURL",
-                    "fa_address": init_storage.eurl_address,
-                    "fa_type": "fa2"
+                    "fa12_address": init_storage.eurl_address,
                 },
             },
             "available_pairs": {
                 ("XTZ", "USD"): "XTZ-USD",
             },
-            "oracle": init_storage.oracle,
-            "admin": init_storage.multisig,
-            "treasury": init_storage.treasury,
-            "oracle_tolerance": init_storage.oracle_tolerance,
             "single_tokens": ["XTZ", "ATF", "AP"],
+            "oracle": init_storage.oracle,
+            "treasury": init_storage.treasury,
+            "admin": init_storage.admin,
         }
 
         opg = marketplace.originate(initial_storage=storage).send(**send_conf)
@@ -285,16 +279,17 @@ class Env:
         marketplace = alice_pytezos.contract(marketplace_addr)
 
         return marketplace
-      def deploy_update(self, marketplace: str = ALICE_PK, multisig: str = ALICE_PK):
+
+    def deploy_update(self, multisig: str = ALICE_PK, admin: str = ALICE_PK):
         with open("../michelson/update.tz", encoding="UTF-8") as mich_file:
             michelson = mich_file.read()
         update = ContractInterface.from_michelson(
             michelson).using(**self.alice_using_params)
         storage = {
-            "ipfs_hashes": {},
-            "update_admins": { ALICE_PK},
             "paused": False,
             "multisig": multisig,
+            "update_admins": {admin},
+            "ipfs_hashes": {},
         }
         opg = update.originate(initial_storage=storage).send(**send_conf)
         update_addr = OperationResult.from_operation_group(

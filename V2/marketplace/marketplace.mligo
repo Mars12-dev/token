@@ -20,10 +20,17 @@
 #include "entrypoints/remove_single_token.mligo"
 
 
+let update_admin (param : address) (store : storage) : return =
+    if (Tezos.get_sender ()) <> store.admin then
+      (failwith("not admin"))
+    else
+        ([] : operation list), {store with admin = param}
+
+
 
 let main (action, store : parameter * storage) : return =
  match action with
- | SetPause p -> set_pause p store
+//  | SetPause p -> set_pause p store
  | UpdateFee p -> update_fee p store
  | UpdateRoyalties p -> [config_royalties p store], store
  | UpdateOracleAddress p -> update_oracle_address p store
@@ -44,5 +51,6 @@ let main (action, store : parameter * storage) : return =
  | UpdateSwap p -> update_swap p store
  | AddSingleToken p -> add_single_token p store
  | RemoveSingleToken p -> remove_single_token p store
- | UpdateMultisigAddress p -> update_multisig_address p store
+ | UpdateAdmin p -> update_admin p store
+//  | UpdateMultisigAddress p -> update_multisig_address p store
 

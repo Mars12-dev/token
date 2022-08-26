@@ -1,27 +1,27 @@
 #include "../common/functions.mligo"
 
-[@inline]
-let prepare_multisig (type p) (entrypoint_name: string) (param: p) (func: unit -> operation list) (store : storage) : operation list =
-    match (Tezos.get_entrypoint_opt "%callMultisig" store.multisig : call_param contract option ) with
-    | None -> (failwith("no call entrypoint") : operation list)
-    | Some contract ->
-        let packed = Bytes.pack param in
-        let param_hash = Crypto.sha256 packed in
-        let entrypoint_signature =
-          {
-            name = entrypoint_name;
-            params = param_hash;
-            source_contract = (Tezos.get_self_address ());
-          }
-        in
-        let call_param =
-        {
-          entrypoint_signature = entrypoint_signature;
-          callback = func;
-        }
-        in
-        let set_storage = Tezos.transaction call_param 0mutez contract in
-        [set_storage]
+// [@inline]
+// let prepare_multisig (type p) (entrypoint_name: string) (param: p) (func: unit -> operation list) (store : storage) : operation list =
+//     match (Tezos.get_entrypoint_opt "%callMultisig" store.multisig : call_param contract option ) with
+//     | None -> (failwith("no call entrypoint") : operation list)
+//     | Some contract ->
+//         let packed = Bytes.pack param in
+//         let param_hash = Crypto.sha256 packed in
+//         let entrypoint_signature =
+//           {
+//             name = entrypoint_name;
+//             params = param_hash;
+//             source_contract = (Tezos.get_self_address ());
+//           }
+//         in
+//         let call_param =
+//         {
+//           entrypoint_signature = entrypoint_signature;
+//           callback = func;
+//         }
+//         in
+//         let set_storage = Tezos.transaction call_param 0mutez contract in
+//         [set_storage]
 
 [@inline]
 let token_mint (metadata : nft_mint_param) (store : storage) : operation =
@@ -119,68 +119,77 @@ let find_fa12 (symbol : token_symbol) (store : storage) : address =
   addr
 
 let update_fee (param : update_fee_param) (store : storage) : return =
-    if (Tezos.get_sender ()) <> store.multisig then
-      let sender_address = (Tezos.get_self_address ()) in
-      let func () =
-        match (Tezos.get_entrypoint_opt "%updateFee" sender_address : update_fee_param contract option) with
-          | None -> (failwith("no updateFee entrypoint") : operation list)
-          | Some update_fee_entrypoint ->
-            [Tezos.transaction param 0mutez update_fee_entrypoint]
-        in
-        (prepare_multisig "updateFee" param func store), store
+    if (Tezos.get_sender ()) <> store.admin then
+      (failwith("not admin"))
+    // if (Tezos.get_sender ()) <> store.multisig then
+    //   let sender_address = (Tezos.get_self_address ()) in
+    //   let func () =
+    //     match (Tezos.get_entrypoint_opt "%updateFee" sender_address : update_fee_param contract option) with
+    //       | None -> (failwith("no updateFee entrypoint") : operation list)
+    //       | Some update_fee_entrypoint ->
+    //         [Tezos.transaction param 0mutez update_fee_entrypoint]
+    //     in
+    //     (prepare_multisig "updateFee" param func store), store
     else
         ([] : operation list), { store with management_fee_rate = param }
 
 let update_nft_address (param : update_nft_address_param) (store : storage) : return =
-  if (Tezos.get_sender ()) <> store.multisig then
-    let sender_address = (Tezos.get_self_address ()) in
-    let func () =
-      match (Tezos.get_entrypoint_opt "%updateNftAddress" sender_address : update_nft_address_param contract option) with
-        | None -> (failwith("no updateNftAddress entrypoint") : operation list)
-        | Some update_nft_entrypoint ->
-          [Tezos.transaction param 0mutez update_nft_entrypoint]
-      in
-      (prepare_multisig "updateNftAddress" param func store), store
+  if (Tezos.get_sender ()) <> store.admin then
+    (failwith("not admin"))
+    // let sender_address = (Tezos.get_self_address ()) in
+    // let func () =
+    //   match (Tezos.get_entrypoint_opt "%updateNftAddress" sender_address : update_nft_address_param contract option) with
+    //     | None -> (failwith("no updateNftAddress entrypoint") : operation list)
+    //     | Some update_nft_entrypoint ->
+    //       [Tezos.transaction param 0mutez update_nft_entrypoint]
+    //   in
+    //   (prepare_multisig "updateNftAddress" param func store), store
   else
     ([] : operation list), { store with nft_address = param }
 
 let update_royalties_address (param : update_royalties_address_param) (store : storage) : return =
-  if (Tezos.get_sender ()) <> store.multisig then
-    let sender_address = (Tezos.get_self_address ()) in
-    let func () =
-      match (Tezos.get_entrypoint_opt "%updateRoyaltiesAddress" sender_address : update_royalties_address_param contract option) with
-        | None -> (failwith("no updateRoyaltiesAddress entrypoint") : operation list)
-        | Some update_royalties_entrypoint ->
-          [Tezos.transaction param 0mutez update_royalties_entrypoint]
-      in
-      (prepare_multisig "updateNftAddress" param func store), store
+  if (Tezos.get_sender ()) <> store.admin then
+      (failwith("not admin"))
+  // if (Tezos.get_sender ()) <> store.multisig then
+  //   let sender_address = (Tezos.get_self_address ()) in
+  //   let func () =
+  //     match (Tezos.get_entrypoint_opt "%updateRoyaltiesAddress" sender_address : update_royalties_address_param contract option) with
+  //       | None -> (failwith("no updateRoyaltiesAddress entrypoint") : operation list)
+  //       | Some update_royalties_entrypoint ->
+  //         [Tezos.transaction param 0mutez update_royalties_entrypoint]
+  //     in
+  //     (prepare_multisig "updateNftAddress" param func store), store
   else
     ([] : operation list), { store with royalties_address = param }
 
 let update_oracle_address (param : address) (store : storage) : return =
-  if (Tezos.get_sender ()) <> store.multisig then
-    let sender_address = (Tezos.get_self_address ()) in
-    let func () =
-      match (Tezos.get_entrypoint_opt "%updateOracleAddress" sender_address : address contract option) with
-        | None -> (failwith("no updateOracleAddress entrypoint") : operation list)
-        | Some update_oracle_entrypoint ->
-          [Tezos.transaction param 0mutez update_oracle_entrypoint]
-      in
-      (prepare_multisig "updateOracleAddress" param func store), store
+  if (Tezos.get_sender ()) <> store.admin then
+      (failwith("not admin"))
+  // if (Tezos.get_sender ()) <> store.multisig then
+  //   let sender_address = (Tezos.get_self_address ()) in
+  //   let func () =
+  //     match (Tezos.get_entrypoint_opt "%updateOracleAddress" sender_address : address contract option) with
+  //       | None -> (failwith("no updateOracleAddress entrypoint") : operation list)
+  //       | Some update_oracle_entrypoint ->
+  //         [Tezos.transaction param 0mutez update_oracle_entrypoint]
+  //     in
+  //     (prepare_multisig "updateOracleAddress" param func store), store
   else
     ([] : operation list), { store with oracle = param }
 
 
 let update_allowed_tokens (param : update_allowed_tokens_param) (store : storage) : return =
-  if (Tezos.get_sender ()) <> store.multisig then
-    let sender_address = (Tezos.get_self_address ()) in
-    let func () =
-      match (Tezos.get_entrypoint_opt "%updateAllowedTokens" sender_address : update_allowed_tokens_param contract option) with
-        | None -> (failwith("no updateAllowedTokens entrypoint") : operation list)
-        | Some update_allowed_tokens_entrypoint ->
-          [Tezos.transaction param 0mutez update_allowed_tokens_entrypoint]
-      in
-      (prepare_multisig "updateAllowedTokens" param func store), store
+  if (Tezos.get_sender ()) <> store.admin then
+      (failwith("not admin"))
+  // if (Tezos.get_sender ()) <> store.multisig then
+  //   let sender_address = (Tezos.get_self_address ()) in
+  //   let func () =
+  //     match (Tezos.get_entrypoint_opt "%updateAllowedTokens" sender_address : update_allowed_tokens_param contract option) with
+  //       | None -> (failwith("no updateAllowedTokens entrypoint") : operation list)
+  //       | Some update_allowed_tokens_entrypoint ->
+  //         [Tezos.transaction param 0mutez update_allowed_tokens_entrypoint]
+  //     in
+  //     (prepare_multisig "updateAllowedTokens" param func store), store
   else
     match param.direction with
     | Remove_token ->
